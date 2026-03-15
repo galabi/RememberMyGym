@@ -1,0 +1,30 @@
+{
+  "short_name": "My Gym",
+  "name": "Remember My Gym",
+  "description": "Track your gym workouts and remember your weights",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#007aff",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary"
+}

@@ -1,0 +1,35 @@
+require('dotenv').config();
+const express = require('express');
+const connectDB = require('./DataBase'); 
+const userRoutes = require('./routes/userRoutes');
+const workoutRoutes = require('./routes/workoutRoutes');
+const measurementRoutes = require('./routes/measurementRoutes');
+const exerciseRoutes = require('./routes/exerciseRoutes');
+const cors = require('cors');
+
+
+
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors({// Allow requests from any origin
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+})); 
+
+
+connectDB();
+app.use(express.json());
+
+// Use the routes
+app.use('/api/users', userRoutes);
+app.use('/api/workouts', workoutRoutes);
+app.use('/api/measurements', measurementRoutes);
+app.use('/api/exercises', exerciseRoutes);
+
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+});

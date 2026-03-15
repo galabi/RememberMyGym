@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/Users');
+const User = require('../models/User');
 
 // @route   GET /api/users
 // @desc    Get all users from the database
@@ -58,6 +58,30 @@ router.delete('/:id', async (req, res) => {
         res.status(200).json({ message: "User deleted successfully" });
     } catch (err) {
         res.status(500).json({ message: "Server error during deletion", error: err.message });
+    }
+});
+
+// @route   POST /api/users/login
+// @desc    Authenticate user with email or username (case-insensitive)
+router.post('/login', async (req, res) => {
+    const { credential, password } = req.body; // credential can be email or username
+
+    try {
+        // Try to find user by email first, then by username (case-insensitive for username)
+        const user = await User.findOne({
+            $or: [
+                { email: credential.toLowerCase() },
+                { username: { $regex: '^' + credential + '$', $options: 'i' } }
+            ]
+        });
+
+        if (user && user.password === password) { // In production, use bcrypt to compare!
+            res.json({ message: "Login successful", user: { id: user._id, name: user.full_name } });
+        } else {
+            res.status(401).json({ message: "Invalid email/username or password" });
+        }
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 });
 

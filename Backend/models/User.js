@@ -28,7 +28,13 @@ const userSchema = new mongoose.Schema({
     gender: { 
         type: String,
         enum: ['male', 'female', 'other'] 
-    }
+    },
+    exercises: [
+        {
+            name: String,
+            muscleGroup: String
+        }
+    ]
 }, { 
     timestamps: true 
 });
