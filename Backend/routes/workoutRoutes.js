@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Workout = require('../models/Workout');
+const Workout = require('../models/workout');
 
 // @route   POST /api/workouts/log
 // @desc    Add or update weight for a specific exercise

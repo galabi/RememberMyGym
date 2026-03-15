@@ -6,6 +6,7 @@ const workoutRoutes = require('./routes/workoutRoutes');
 const measurementRoutes = require('./routes/measurementRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
 const cors = require('cors');
+const API_IP = process.env.API_IP || 'localhost';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
@@ -31,5 +32,5 @@ app.use('/api/exercises', exerciseRoutes);
 
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`Server running on http://${API_IP}:${PORT}`);
 });

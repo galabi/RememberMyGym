@@ -2,21 +2,29 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+const CATEGORY_ICONS = {
+    'Chest': '💪',
+    'Back': '🔙',
+    'Arms': '🦾',
+    'Legs': '🦵',
+    'Glutes': '🍑',
+    'Core': '🫀'
+};
+
 const PREDEFINED_CATEGORIES = [
     'Chest', 
     'Back', 
-    'Shoulders', 
+    'Arms', 
     'Legs', 
-    'Biceps', 
-    'Triceps', 
-    'Core', 
-    'Cardio'
+    'Glutes', 
+    'Core'
 ];
 
 export default function ExerciseSelector({ userId, onExercisesUpdated }) {
     const [userExercises, setUserExercises] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // שליטה על פתיחת התפריט
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     
     const [customCategory, setCustomCategory] = useState('');
     const [customExercise, setCustomExercise] = useState('');
@@ -100,14 +108,13 @@ export default function ExerciseSelector({ userId, onExercisesUpdated }) {
 
                         <div style={styles.inputGroup}>
                             
-                            {/* --- Custom Dropdown Start --- */}
                             <div style={{ position: 'relative', width: '100%' }}>
                                 <div 
                                     style={{ ...styles.input, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 >
                                     <span style={{ color: customCategory ? '#1c1c1e' : '#8e8e93' }}>
-                                        {customCategory || 'Select Category...'}
+                                        {customCategory ? `${CATEGORY_ICONS[customCategory]} ${customCategory}` : 'Select Category...'}
                                     </span>
                                     <span style={{ fontSize: '12px', color: '#007aff' }}>{isDropdownOpen ? '▲' : '▼'}</span>
                                 </div>
@@ -134,13 +141,12 @@ export default function ExerciseSelector({ userId, onExercisesUpdated }) {
                                                 onMouseOver={(e) => e.target.style.backgroundColor = '#f2f2f7'}
                                                 onMouseOut={(e) => e.target.style.backgroundColor = customCategory === category ? '#f2f2f7' : 'transparent'}
                                             >
-                                                {category}
+                                                <span>{CATEGORY_ICONS[category]} {category}</span>
                                             </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
-                            {/* --- Custom Dropdown End --- */}
 
                             <input 
                                 style={styles.input}
@@ -162,7 +168,7 @@ export default function ExerciseSelector({ userId, onExercisesUpdated }) {
                                 {userExercises.map(ex => (
                                     <div key={ex.name} style={styles.exerciseItem}>
                                         <div style={styles.exerciseName}>
-                                            {ex.name}
+                                            <span>{CATEGORY_ICONS[ex.muscleGroup]} {ex.name}</span>
                                             <span style={styles.exerciseCategory}>{ex.muscleGroup}</span>
                                         </div>
                                         <button 
