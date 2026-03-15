@@ -6,7 +6,7 @@ const workoutRoutes = require('./routes/workoutRoutes');
 const measurementRoutes = require('./routes/measurementRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
 const cors = require('cors');
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
 
@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({// Allow requests from any origin
-    origin: '*',
+    origin: API_BASE_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 })); 
