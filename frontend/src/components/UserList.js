@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+const API_BASE_URL = 'https://remembermygym-api.onrender.com';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/users');
+            const res = await axios.get('${API_BASE_URL}/api/users');
             setUsers(res.data);
         } catch (err) {
             console.error(err);
