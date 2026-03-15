@@ -14,10 +14,9 @@ const Login = ({ onLoginSuccess }) => {
             // Sending login request to the backend with email or username
             const response = await axios.post(`${API_BASE_URL}/api/users/login`, { credential, password });
             
-            if (response.status === 200) {
-                // Notify parent component (App.js) about successful login.
+            if (response.status === 200 && response.data && response.data.user) {                // Notify parent component (App.js) about successful login.
                 // Map backend's `user.id` to `_id` so other components (Dashboard) can use `user._id`.
-                const userFromServer = response.data.user || {};
+                const userFromServer = response.data.user;
                 const mappedUser = {
                     _id: userFromServer.id,
                     full_name: userFromServer.name
