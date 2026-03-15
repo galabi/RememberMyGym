@@ -255,7 +255,7 @@ const Dashboard = ({ user }) => {
                         <p style={{fontSize: '14px'}}>Click the + button to add exercises</p>
                     </div>
                 ) : (
-                    Object.keys(muscleGroupIcons).map(group => {
+                    [...new Set(userExercises.map(ex => ex.muscleGroup))].map(group => {
                         const groupExercises = userExercises.filter(ex => ex.muscleGroup === group);
                         if (groupExercises.length === 0) return null;
                         
@@ -270,7 +270,7 @@ const Dashboard = ({ user }) => {
                                     }}
                                 >
                                     <div style={styles.groupTitleContainer}>
-                                        <span style={styles.groupIcon}>{muscleGroupIcons[group]}</span>
+                                        <span style={styles.groupIcon}>{muscleGroupIcons[group] || '📌'}</span>
                                         <h2 style={styles.groupTitle}>{group}</h2>
                                     </div>
                                     <span style={{
