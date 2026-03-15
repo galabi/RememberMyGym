@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const UserForm = () => {
     const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const UserForm = () => {
         e.preventDefault();
         try {
             // Adjust URL if your server runs on a different port
-            const response = await axios.post('http://localhost:3000/api/users', formData);
+            const response = await axios.post(`${API_BASE_URL}/api/users`, formData);
             alert('User created successfully!');
             console.log(response.data);
         } catch (error) {
