@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Measurement = require('../models/Measurement');
 
 // Get latest measurements for a user
 router.get('/latest/:user_id', async (req, res) => {
     try {
         const { user_id } = req.params;
-        const measurement = await Measurement.findOne({ user_id }).sort({ createdAt: -1 });
+        const objectId = mongoose.Types.ObjectId.isValid(user_id) ? new mongoose.Types.ObjectId(user_id) : user_id;
+        const measurement = await Measurement.findOne({ user_id: objectId }).sort({ createdAt: -1 }).lean();
         
         if (!measurement) {
             return res.json({ 
@@ -30,17 +32,20 @@ router.post('/log', async (req, res) => {
         if (!user_id || !weight) {
             return res.status(400).json({ message: 'user_id and weight are required' });
         }
-        if(weight <= 0 || (!Number.isInteger(weight) && Number.isNaN(weight))) {
+        if (weight <= 0 || isNaN(weight)) {
             return res.status(400).json({ message: 'Invalid weight value' });
         }
-        if(Number.isNaN(height) && (height <= 0 || (!Number.isInteger(height) && Number.isNaN(height)))) {
+        if (height !== undefined && height !== null && (height <= 0 || isNaN(height))) {
             return res.status(400).json({ message: 'Invalid height value' });
         }
-        if(Number.isNaN(bodyFatPercentage) && (bodyFatPercentage <= 0 || bodyFatPercentage > 100 || !Number.isInteger(bodyFatPercentage))) {
+        if (bodyFatPercentage !== undefined && bodyFatPercentage !== null && (bodyFatPercentage <= 0 || bodyFatPercentage > 100 || isNaN(bodyFatPercentage))) {
             return res.status(400).json({ message: 'Invalid body fat percentage value' });
         }
+        
+        const objectId = mongoose.Types.ObjectId.isValid(user_id) ? new mongoose.Types.ObjectId(user_id) : user_id;
+        
         const measurement = new Measurement({
-            user_id,
+            user_id: objectId,
             weight,
             height,
             bodyFatPercentage
@@ -57,7 +62,8 @@ router.post('/log', async (req, res) => {
 router.get('/history/:user_id', async (req, res) => {
     try {
         const { user_id } = req.params;
-        const measurements = await Measurement.find({ user_id }).sort({ createdAt: -1 });
+        const objectId = mongoose.Types.ObjectId.isValid(user_id) ? new mongoose.Types.ObjectId(user_id) : user_id;
+        const measurements = await Measurement.find({ user_id: objectId }).sort({ createdAt: -1 });
         res.json(measurements);
     } catch (error) {
         res.status(500).json({ message: error.message });

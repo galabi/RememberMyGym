@@ -47,7 +47,7 @@ router.post('/add', async (req, res) => {
         });
         
         await user.save();
-        res.json({ message: 'Exercise added successfully', exercises: user.exercises });
+        res.status(201).json({ message: 'Exercise added successfully', exercises: user.exercises });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

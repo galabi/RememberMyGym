@@ -50,6 +50,14 @@ web_modules/
 # Optional npm cache directory
 .npm
 
+# Test files and coverage
+__tests__/
+*.test.js
+jest.config.js
+TESTING.md
+coverage/
+.nyc_output/
+
 # Optional eslint cache
 .eslintcache
 
