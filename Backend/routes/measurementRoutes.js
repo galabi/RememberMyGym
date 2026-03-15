@@ -30,7 +30,15 @@ router.post('/log', async (req, res) => {
         if (!user_id || !weight) {
             return res.status(400).json({ message: 'user_id and weight are required' });
         }
-        
+        if(weight <= 0 || (!Number.isInteger(weight) && Number.isNaN(weight))) {
+            return res.status(400).json({ message: 'Invalid weight value' });
+        }
+        if(Number.isNaN(height) && (height <= 0 || (!Number.isInteger(height) && Number.isNaN(height)))) {
+            return res.status(400).json({ message: 'Invalid height value' });
+        }
+        if(Number.isNaN(bodyFatPercentage) && (bodyFatPercentage <= 0 || bodyFatPercentage > 100 || !Number.isInteger(bodyFatPercentage))) {
+            return res.status(400).json({ message: 'Invalid body fat percentage value' });
+        }
         const measurement = new Measurement({
             user_id,
             weight,

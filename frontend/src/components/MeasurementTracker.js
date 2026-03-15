@@ -56,7 +56,6 @@ export default function MeasurementTracker() {
                 setEditingField(null);
                 return;
             }
-            
             const payload = {
                 user_id: userId,
                 weight: field === 'weight' ? parseFloat(editValue) : (measurements.weight || 0),

@@ -48,7 +48,7 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
                 reps: lastRecord?.reps || '',
                 sets: lastRecord?.sets || ''
             });
-            setErrorMsg(''); // איפוס שגיאות בפתיחה מחדש
+            setErrorMsg(''); // Reset errors on reopening
         }
     }, [isOpen, lastRecord]);
 
@@ -56,7 +56,7 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
         e.preventDefault();
         setErrorMsg('');
 
-        // ולידציה בסיסית לפני שליחה לשרת
+        // Basic validation before sending to server
         if (!formData.weight || isNaN(formData.weight)) {
             setErrorMsg('Please enter a valid weight');
             return;
@@ -65,7 +65,7 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
         setIsSaving(true);
         try {
             await onSave(exercise, formData);
-            onClose(); // סגירה רק אם השמירה הצליחה
+            onClose(); // Close only if save succeeded
         } catch (err) {
             setErrorMsg('Failed to save. Please try again.');
         } finally {
@@ -169,15 +169,17 @@ const Dashboard = ({ user }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     const muscleGroupIcons = {
-        'Chest': '🏋️',
+        'Chest': '💪',
+        'Back': '🔙',
+        'Arms': '🦾',
         'Legs': '🦵',
         'Glutes': '🍑',
-        'Back/Arms': '💪'
+        'Core': '🫀'
     };
 
     const handleLogout = () => {
         ['user_id', 'full_name', 'isLoggedIn'].forEach(c => Cookies.remove(c));
-        window.location.href = '/'; // עדיף ניתוב נקי יותר מ-reload אם אין לך React Router
+        window.location.href = '/'; // Clean navigation for better UX
     };
 
     const fetchData = useCallback(async () => {
@@ -191,7 +193,7 @@ const Dashboard = ({ user }) => {
             setWorkouts(workoutsRes.data);
         } catch (err) {
             console.error("Error fetching data:", err);
-            // אפשר להוסיף כאן התראת שגיאה למשתמש
+            // Can add error notification for user here
         } finally {
             setIsLoading(false);
         }
@@ -202,7 +204,7 @@ const Dashboard = ({ user }) => {
     }, [fetchData]);
 
     const getLastRecord = (exerciseName) => {
-        // הפיכת המערך כדי למצוא את האימון האחרון שנוסף (במידה והשרת לא ממיין)
+        // Reverse array to find the last added workout (in case server doesn't sort)
         return workouts.slice().reverse().find(w => w.exercise_name === exerciseName) || null;
     };
 
@@ -220,7 +222,7 @@ const Dashboard = ({ user }) => {
             sets: formData.sets ? Number(formData.sets) : null
         });
         
-        // רענון הרשומות לאחר שמירה מוצלחת
+        // Refresh records after successful save
         const workoutsRes = await axios.get(`${API_BASE_URL}/api/workouts/${user._id}`);
         setWorkouts(workoutsRes.data);
     };
