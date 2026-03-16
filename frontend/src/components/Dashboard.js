@@ -327,19 +327,21 @@ const Dashboard = ({ user }) => {
 const styles = {
     container: {
         padding: '20px',
+        paddingTop: 'env(safe-area-inset-top)',
         backgroundColor: '#f9f9fb',
-        minHeight: '100vh',
+        minHeight: '100dvh',
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
         maxWidth: '430px',
         margin: '0 auto',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        display: 'flow-root'
     },
     header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '30px',
-        marginTop: '10px'
+        marginTop: '30px'
     },
     title: {
         fontSize: '28px',
