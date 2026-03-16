@@ -27,23 +27,29 @@ router.get('/latest/:user_id', async (req, res) => {
 // Save or update measurements for a user
 router.post('/log', async (req, res) => {
     try {
-        const { user_id, weight, height, bodyFatPercentage } = req.body;
+        let { user_id, weight, height, bodyFatPercentage } = req.body;
         
-        if (!user_id || !weight) {
-            return res.status(400).json({ message: 'user_id and weight are required' });
+        if (!user_id) {
+            return res.status(400).json({ message: 'user_id is required' });
         }
-        if (weight <= 0 || isNaN(weight)) {
-            return res.status(400).json({ message: 'Invalid weight value' });
-        }
-        if (height !== undefined && height !== null && (height <= 0 || isNaN(height))) {
-            return res.status(400).json({ message: 'Invalid height value' });
-        }
-        if (bodyFatPercentage !== undefined && bodyFatPercentage !== null && (bodyFatPercentage <= 0 || bodyFatPercentage > 100 || isNaN(bodyFatPercentage))) {
-            return res.status(400).json({ message: 'Invalid body fat percentage value' });
-        }
-        
+
         const objectId = mongoose.Types.ObjectId.isValid(user_id) ? new mongoose.Types.ObjectId(user_id) : user_id;
         
+        const lastRecord = await Measurement.findOne({ user_id: objectId }).sort({ createdAt: -1 });
+        weight = weight || (lastRecord ? lastRecord.weight : null);
+        height = height || (lastRecord ? lastRecord.height : null);
+        bodyFatPercentage = bodyFatPercentage || (lastRecord ? lastRecord.bodyFatPercentage : null);
+
+        if (weight < 0 || isNaN(weight)) {
+            return res.status(400).json({ message: 'Invalid weight value' });
+        }
+        if (height < 0) {
+            return res.status(400).json({ message: 'Invalid height value' });
+        }
+        if (bodyFatPercentage < 0 || bodyFatPercentage > 100 ) {
+            return res.status(400).json({ message: 'Invalid body fat percentage value' });
+        }
+                
         const measurement = new Measurement({
             user_id: objectId,
             weight,
