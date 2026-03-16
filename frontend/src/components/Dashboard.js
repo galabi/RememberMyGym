@@ -3,6 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import MeasurementTracker from './MeasurementTracker';
 import ExerciseSelector from './ExerciseSelector';
+import GraphModal from './GraphModal';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -30,9 +31,6 @@ const globalStyles = `
     .group-header {
         background-color: transparent;
         transition: background-color 0.2s ease;
-    }
-    .group-header:hover {
-        background-color: #f2f2f7 !important;
     }
 `;
 
@@ -164,9 +162,11 @@ const Dashboard = ({ user }) => {
     const [workouts, setWorkouts] = useState([]);
     const [selectedExercise, setSelectedExercise] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [expandedGroup, setExpandedGroup] = useState(null);
     const [userExercises, setUserExercises] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    
 
     const muscleGroupIcons = {
         'Chest': '💪',
@@ -243,7 +243,7 @@ const Dashboard = ({ user }) => {
             </header>
 
             <MeasurementTracker />
-
+            
             <div style={{...styles.muscleGroupsContainer, position: 'relative', paddingBottom: '60px'}}>
                 {isLoading ? (
                     <div style={{textAlign: 'center', padding: '40px', color: '#8e8e93'}}>
@@ -295,6 +295,23 @@ const Dashboard = ({ user }) => {
                                                     {lastRecord && (
                                                         <span style={styles.exerciseWeight}>{lastRecord.weight} kg</span>
                                                     )}
+                                                    {/* graph button */}
+                                                    <span 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedExercise(exercise.name);
+                                                            setIsHistoryOpen(true);
+                                                        }}
+                                                        style={{ 
+                                                            fontSize: '20px', 
+                                                            cursor: 'pointer',
+                                                            padding: '5px',
+                                                            display: 'flex',
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        📊
+                                                    </span>
                                                 </button>
                                             );
                                         })}
@@ -320,6 +337,12 @@ const Dashboard = ({ user }) => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveRecord}
             />
+            <GraphModal 
+                isOpen={isHistoryOpen}
+                exercise={selectedExercise}
+                allWorkouts={workouts}
+                onClose={() => setIsHistoryOpen(false)}
+            />
         </div>
     );
 };
@@ -327,31 +350,34 @@ const Dashboard = ({ user }) => {
 const styles = {
     container: {
         padding: '20px',
-        paddingTop: 'env(safe-area-inset-top)',
+        paddingTop: 'max(20px, env(safe-area-inset-top))',  
+        paddingBottom: '20px',
         backgroundColor: '#f9f9fb',
-        minHeight: '100dvh',
+        minHeight: '100dvh', 
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
         maxWidth: '430px',
         margin: '0 auto',
         boxSizing: 'border-box',
-        display: 'flow-root'
+        display: 'flex',
+        flexDirection: 'column',
     },
     header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '30px',
-        marginTop: '30px'
+        marginTop: '0px'
     },
     title: {
-        fontSize: '28px',
-        fontWeight: '800',
+        fontSize: '34px',
+        fontWeight: 'bold',
+        letterSpacing: '-1px',
         margin: 0,
-        color: '#1c1c1e'
+        color: '#000'
     },
     subtitle: {
         color: '#8e8e93',
-        fontSize: '15px',
+        fontSize: '17px',
         marginTop: '2px'
     },
     logoutButton: {

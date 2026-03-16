@@ -15,9 +15,9 @@
       "purpose": "any"
     },
     {
-      "src": "my-new-ios-logo.png",
+      "src": "logo180.png",
       "type": "image/png",
-      "sizes": "196x196"
+      "sizes": "180x180"
     },
     {
       "src": "logo512.png",
@@ -29,7 +29,7 @@
   "start_url": ".",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#007aff",
+  "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "orientation": "portrait-primary"
 }

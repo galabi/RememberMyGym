@@ -15,17 +15,18 @@ router.post('/log', async (req, res) => {
     try {
         // Use findOneAndUpdate with upsert:true to update existing exercise or create a new one
         // This ensures the user always sees their LATEST record for each machine
-        const workout = await Workout.findOneAndUpdate(
-            { user_id, exercise_name }, 
-            { 
-                weight, 
-                sets, 
-                reps,
-                updatedAt: Date.now() // Manually force update timestamp if needed
-            }, 
-            { new: true, upsert: true } 
-        );
-        res.status(200).json(workout);
+        const workout = new Workout({
+            user_id,
+            exercise_name,
+            weight,
+            sets,
+            reps,
+            updatedAt: Date.now() // Manually update the timestamp to ensure it reflects the latest update
+            });
+        
+        const savedWorkout = await workout.save();
+
+        res.status(201).json(savedWorkout);
     } catch (err) {
         res.status(400).json({ message: "Error saving workout data", error: err.message });
     }
@@ -37,6 +38,20 @@ router.get('/:userId', async (req, res) => {
     try {
         // Fetching workouts for a specific user and sorting by most recent update
         const workouts = await Workout.find({ user_id: req.params.userId })
+            .sort({ updatedAt: -1 });
+            
+        res.json(workouts);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching workouts", error: err.message });
+    }
+});
+
+// @route   GET /api/workouts/:userId/:exerciseName
+// @desc    Get all saved weights for a specific user and exercise
+router.get('/', async (req, res) => {
+    try {
+        // Fetching workouts for a specific user&exercise and sorting by most recent update
+        const workouts = await Workout.find({ user_id: req.query.userId, exercise_name: req.query.exercise })
             .sort({ updatedAt: -1 });
             
         res.json(workouts);

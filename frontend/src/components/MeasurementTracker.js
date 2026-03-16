@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // הוספת useCallback
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -29,12 +29,8 @@ export default function MeasurementTracker() {
     const [loading, setLoading] = useState(true);
     const userId = Cookies.get('user_id');
     
-    // Fetch latest measurements on component mount
-    useEffect(() => {
-        fetchLatestMeasurements();
-    }, []);
-    
-    const fetchLatestMeasurements = async () => {
+    // 1. עטיפת הפונקציה ב-useCallback כדי למנוע יצירה מחדש בכל רינדור
+    const fetchLatestMeasurements = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get(`${API_BASE_URL}/api/measurements/latest/${userId}`);
@@ -44,7 +40,12 @@ export default function MeasurementTracker() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]); // הפונקציה תשתנה רק אם ה-userId ישתנה
+
+    // 2. העברת ה-useEffect לכאן (אחרי שהפונקציה מוגדרת)
+    useEffect(() => {
+        fetchLatestMeasurements();
+    }, [fetchLatestMeasurements]); // עכשיו זה בטוח להוסיף את זה כאן
     
     const handleInputChange = (e) => {
         setEditValue(e.target.value);
@@ -63,8 +64,6 @@ export default function MeasurementTracker() {
                 bodyFatPercentage: field === 'bodyFatPercentage' ? parseFloat(editValue) : (measurements.bodyFatPercentage || 0)
             };
             
-            console.log('Saving measurement:', payload);
-            
             if (!payload.user_id) {
                 alert('User ID not found');
                 return;
@@ -76,7 +75,6 @@ export default function MeasurementTracker() {
             }
             
             await axios.post(`${API_BASE_URL}/api/measurements/log`, payload);
-            console.log('Measurement saved successfully');
             await fetchLatestMeasurements();
             setEditingField(null);
             setEditValue('');
@@ -86,6 +84,7 @@ export default function MeasurementTracker() {
         }
     };
     
+    // ... שאר הסטיילים וה-JSX ללא שינוי ...
     const styles = {
         container: {
             backgroundColor: '#f8f8f8',
@@ -203,101 +202,63 @@ export default function MeasurementTracker() {
             cursor: 'pointer'
         },
     };
-    
+
     if (loading) {
         return <div style={styles.container}><p>טוען מדידות...</p></div>;
     }
-    
+
     return (
         <>
             <style>{expandStyles}</style>
             <div style={styles.container}>
-            {editingField ? (
-                <div style={styles.expandedEditBox}>
-                    <div style={styles.editForm}>
-                        <label style={styles.editLabel}>
-                            {editingField === 'weight' && 'Weight (kg)'}
-                            {editingField === 'height' && 'Height (cm)'}
-                            {editingField === 'bodyFatPercentage' && 'Body Fat (%)'}
-                        </label>
-                        <input
-                            type="number"
-                            step={editingField === 'height' ? '1' : '0.1'}
-                            value={editValue}
-                            onChange={handleInputChange}
-                            placeholder={
-                                editingField === 'weight' ? 'Weight' :
-                                editingField === 'height' ? 'Height' :
-                                'Body Fat'
-                            }
-                            style={styles.expandedEditInput}
-                            autoFocus
-                        />
-                        <div style={styles.editButtons}>
-                            <button 
-                                onClick={() => handleSaveMeasurement(editingField)}
-                                style={styles.editSaveBtn}
-                            >
-                                ✓ Save
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    setEditingField(null);
-                                    setEditValue('');
-                                }}
-                                style={styles.editCancelBtn}
-                            >
-                                ✕ Cancel
-                            </button>
+                <h2 style={styles.title}>My Measurements</h2>
+                {editingField ? (
+                    <div style={styles.expandedEditBox}>
+                        <div style={styles.editForm}>
+                            <label style={styles.editLabel}>
+                                {editingField === 'weight' && 'Weight (kg)'}
+                                {editingField === 'height' && 'Height (cm)'}
+                                {editingField === 'bodyFatPercentage' && 'Body Fat (%)'}
+                            </label>
+                            <input
+                                type="number"
+                                step={editingField === 'height' ? '1' : '0.1'}
+                                value={editValue}
+                                onChange={handleInputChange}
+                                placeholder={
+                                    editingField === 'weight' ? 'Weight' :
+                                    editingField === 'height' ? 'Height' :
+                                    'Body Fat'
+                                }
+                                style={styles.expandedEditInput}
+                                autoFocus
+                            />
+                            <div style={styles.editButtons}>
+                                <button onClick={() => handleSaveMeasurement(editingField)} style={styles.editSaveBtn}>✓ Save</button>
+                                <button onClick={() => { setEditingField(null); setEditValue(''); }} style={styles.editCancelBtn}>✕ Cancel</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ) : (
-                <div style={styles.metricsGrid}>
-                    <div 
-                        style={styles.metricBox}
-                        onClick={() => {
-                            setEditingField('weight');
-                            setEditValue(measurements.weight || '');
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                    >
-                        <div style={styles.metricLabel}>Weight</div>
-                        <div style={styles.metricValue}>{measurements.weight || '—'}</div>
-                        <div style={styles.metricUnit}>kg</div>
+                ) : (
+                    <div style={styles.metricsGrid}>
+                        <div style={styles.metricBox} onClick={() => { setEditingField('weight'); setEditValue(measurements.weight || ''); }}>
+                            <div style={styles.metricLabel}>Weight</div>
+                            <div style={styles.metricValue}>{measurements.weight || '—'}</div>
+                            <div style={styles.metricUnit}>kg</div>
+                        </div>
+                        <div style={styles.metricBox} onClick={() => { setEditingField('height'); setEditValue(measurements.height || ''); }}>
+                            <div style={styles.metricLabel}>Height</div>
+                            <div style={styles.metricValue}>{measurements.height || '—'}</div>
+                            <div style={styles.metricUnit}>cm</div>
+                        </div>
+                        <div style={styles.metricBox} onClick={() => { setEditingField('bodyFatPercentage'); setEditValue(measurements.bodyFatPercentage || ''); }}>
+                            <div style={styles.metricLabel}>Body Fat</div>
+                            <div style={styles.metricValue}>{measurements.bodyFatPercentage || '—'}</div>
+                            <div style={styles.metricUnit}>%</div>
+                        </div>
                     </div>
-                    
-                    <div 
-                        style={styles.metricBox}
-                        onClick={() => {
-                            setEditingField('height');
-                            setEditValue(measurements.height || '');
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                    >
-                        <div style={styles.metricLabel}>Height</div>
-                        <div style={styles.metricValue}>{measurements.height || '—'}</div>
-                        <div style={styles.metricUnit}>cm</div>
-                    </div>
-                    
-                    <div 
-                        style={styles.metricBox}
-                        onClick={() => {
-                            setEditingField('bodyFatPercentage');
-                            setEditValue(measurements.bodyFatPercentage || '');
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                    >
-                        <div style={styles.metricLabel}>Body Fat</div>
-                        <div style={styles.metricValue}>{measurements.bodyFatPercentage || '—'}</div>
-                        <div style={styles.metricUnit}>%</div>
-                    </div>
-                </div>
-            )}
+                )}
             </div>
-            </>
+        </>
     );
 }
