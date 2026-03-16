@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Workout = require('../models/Workout');
+const mongoose = require('mongoose');
 
 // @route   POST /api/workouts/log
 // @desc    Add or update weight for a specific exercise
@@ -55,6 +56,31 @@ router.get('/', async (req, res) => {
             .sort({ updatedAt: -1 });
             
         res.json(workouts);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching workouts", error: err.message });
+    }
+});
+
+// @route   GET /api/workouts/last/:userId
+// @desc    Get last saved weights for a specific user for each exercise
+router.get('/last/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+
+        const lastRecords = await Workout.aggregate([
+            { $match: { user_id: userObjectId } },
+            { $sort: { createdAt: -1 } },
+            {
+                $group: {
+                _id: "$exercise_name", // group by exercise name
+                lastRecord: { $first: "$$ROOT" } // get the most recent record for each exercise
+            },
+            }
+            ])
+            .sort({ updatedAt: -1 });
+            
+        res.json(lastRecords);
     } catch (err) {
         res.status(500).json({ message: "Error fetching workouts", error: err.message });
     }

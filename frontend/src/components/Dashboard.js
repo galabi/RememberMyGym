@@ -166,6 +166,7 @@ const Dashboard = ({ user }) => {
     const [expandedGroup, setExpandedGroup] = useState(null);
     const [userExercises, setUserExercises] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [latestWorkouts, setLatestWorkouts] = useState([]);
     
 
     const muscleGroupIcons = {
@@ -185,12 +186,14 @@ const Dashboard = ({ user }) => {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [exercisesRes, workoutsRes] = await Promise.all([
+            const [exercisesRes, workoutsRes,latestRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/exercises/user/${user._id}`),
-                axios.get(`${API_BASE_URL}/api/workouts/${user._id}`)
+                axios.get(`${API_BASE_URL}/api/workouts/${user._id}`),
+                axios.get(`${API_BASE_URL}/api/workouts/last/${user._id}`)
             ]);
             setUserExercises(exercisesRes.data);
             setWorkouts(workoutsRes.data);
+            setLatestWorkouts(latestRes.data);
         } catch (err) {
             console.error("Error fetching data:", err);
             // Can add error notification for user here
@@ -204,8 +207,15 @@ const Dashboard = ({ user }) => {
     }, [fetchData]);
 
     const getLastRecord = (exerciseName) => {
-        // Reverse array to find the last added workout (in case server doesn't sort)
-        return workouts.slice().reverse().find(w => w.exercise_name === exerciseName) || null;
+        // Find the last record for the given exercise from the latestWorkouts data
+        const group = latestWorkouts.find(w => w._id === exerciseName);
+        
+        // If found, return the lastRecord which contains weight, reps, sets, etc.
+        if (group && group.lastRecord) {
+            return group.lastRecord;
+        }
+
+        return null;
     };
 
     const handleExerciseClick = (exercise) => {
@@ -214,17 +224,23 @@ const Dashboard = ({ user }) => {
     };
 
     const handleSaveRecord = async (exerciseName, formData) => {
-        await axios.post(`${API_BASE_URL}/api/workouts/log`, {
-            user_id: user._id,
-            exercise_name: exerciseName,
-            weight: Number(formData.weight),
-            reps: formData.reps ? Number(formData.reps) : null,
-            sets: formData.sets ? Number(formData.sets) : null
-        });
-        
-        // Refresh records after successful save
-        const workoutsRes = await axios.get(`${API_BASE_URL}/api/workouts/${user._id}`);
-        setWorkouts(workoutsRes.data);
+        try {
+            //save the new record to the backend
+            await axios.post(`${API_BASE_URL}/api/workouts/log`, {
+                user_id: user._id,
+                exercise_name: exerciseName,
+                weight: Number(formData.weight),
+                reps: formData.reps ? Number(formData.reps) : null,
+                sets: formData.sets ? Number(formData.sets) : null
+            });
+            
+            // After saving, fetch the updated workouts to reflect changes in the UI
+            await fetchData();
+            
+        } catch (err) {
+            console.error("Error saving record:", err);
+            throw err;
+        }
     };
 
     return (
