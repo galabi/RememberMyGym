@@ -92,7 +92,6 @@ export default function MeasurementTracker() {
         return '—';
     };
     
-    // ... שאר הסטיילים וה-JSX ללא שינוי ...
     const styles = {
         container: {
             backgroundColor: '#f8f8f8',
@@ -212,7 +211,7 @@ export default function MeasurementTracker() {
     };
 
     if (loading) {
-        return <div style={styles.container}><p>טוען מדידות...</p></div>;
+        return <div style={styles.container}><p>Loading data...</p></div>;
     }
 
 return (

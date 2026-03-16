@@ -71,6 +71,7 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
         }
     };
 
+
     if (!isOpen) return null;
 
     return (
@@ -218,6 +219,14 @@ const Dashboard = ({ user }) => {
         return null;
     };
 
+    // Function to determine greeting based on time of day
+    const getGreetingByTime = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good morning';
+        if (hour < 18) return 'Good afternoon';
+        return 'Good evening';  
+    };
+
     const handleExerciseClick = (exercise) => {
         setSelectedExercise(exercise);
         setIsModalOpen(true);
@@ -249,7 +258,7 @@ const Dashboard = ({ user }) => {
             
             <header style={styles.header}>
                 <div style={{ flex: 1 }}>
-                    <h1 style={styles.title}>My Gym</h1>
+                    <h1 style={styles.title}>{getGreetingByTime()}, {user.full_name ? user.full_name.split(' ')[0] : 'there'}!</h1>
                     <p style={styles.subtitle}>Track your workouts</p>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -381,14 +390,15 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '30px',
+        marginBottom: '0px',
         marginTop: '0px'
     },
     title: {
-        fontSize: '34px',
+        fontSize: '35px',
         fontWeight: 'bold',
         letterSpacing: '-1px',
         margin: 0,
+        marginTop: '30px',
         color: '#000'
     },
     subtitle: {
