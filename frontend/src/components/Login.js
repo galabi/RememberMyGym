@@ -8,31 +8,32 @@ const Login = ({ onLoginSuccess }) => {
     const [credential, setCredential] = useState(''); // Can be email or username
     const [password, setPassword] = useState('');
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            // Sending login request to the backend with email or username
-            const response = await axios.post(`${API_BASE_URL}/api/users/login`, { credential, password });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/users/login`, { credential, password });
+        
+      if (response.status === 200 && response.data && response.data.user) {
+          const userFromServer = response.data.user;
             
-            if (response.status === 200 && response.data && response.data.user) {                // Notify parent component (App.js) about successful login.
-                // Map backend's `user.id` to `_id` so other components (Dashboard) can use `user._id`.
-                const userFromServer = response.data.user;
-                const mappedUser = {
-                    _id: userFromServer.id,
-                    full_name: userFromServer.name
-                };
-                // Save user data and login state to cookies for session persistence
-                Cookies.set('user_id', mappedUser._id, { expires: 7 });
-                Cookies.set('full_name', mappedUser.full_name, { expires: 7 });
-                Cookies.set('isLoggedIn', 'true', { expires: 7 });
-                onLoginSuccess(mappedUser);
-            }
-        } catch (error) {
-            // Error handling for failed login attempts
-            console.error("Login Error:", error);
-            alert('Login failed. Please check your credentials.');
+          const mappedUser = {
+              _id: userFromServer.id, 
+              full_name: userFromServer.name 
+          };
+
+            // 1. save to cookies for session persistence
+            Cookies.set('user_id', mappedUser._id, { expires: 7 });
+            Cookies.set('full_name', mappedUser.full_name, { expires: 7 });
+            Cookies.set('isLoggedIn', 'true', { expires: 7 });
+
+            // 2. update state in App component
+            onLoginSuccess(mappedUser);
         }
-    };
+    } catch (error) {
+        console.error("Login Error:", error);
+        alert('Login failed. Please check your credentials.');
+    }
+};
 
     return (
         <div style={styles.container}>

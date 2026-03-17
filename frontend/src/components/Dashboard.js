@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import MeasurementTracker from './MeasurementTracker';
 import ExerciseSelector from './ExerciseSelector';
 import GraphModal from './GraphModal';
@@ -179,11 +178,6 @@ const Dashboard = ({ user }) => {
         'Core': '🫀'
     };
 
-    const handleLogout = () => {
-        ['user_id', 'full_name', 'isLoggedIn'].forEach(c => Cookies.remove(c));
-        window.location.href = '/'; // Clean navigation for better UX
-    };
-
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -261,10 +255,10 @@ const Dashboard = ({ user }) => {
                     <h1 style={styles.title}>{getGreetingByTime()}, {user.full_name ? user.full_name.split(' ')[0] : 'there'}!</h1>
                     <p style={styles.subtitle}>Track your workouts</p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <button onClick={handleLogout} style={styles.logoutButton}>Logout</button>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center'}}>
                     <div style={styles.profileCircle}>{user.full_name ? user.full_name[0].toUpperCase() : 'U'}</div>
                 </div>
+
             </header>
 
             <MeasurementTracker />
@@ -347,7 +341,7 @@ const Dashboard = ({ user }) => {
                     })
                 )}
 
-                <div style={{position: 'fixed', bottom: '30px', right: '30px', zIndex: 100}}>
+                <div style={{position: 'fixed', bottom: '80px', right: '30px', zIndex: 100}}>
                     <ExerciseSelector 
                         userId={user._id} 
                         onExercisesUpdated={fetchData}
@@ -406,16 +400,6 @@ const styles = {
         fontSize: '17px',
         marginTop: '2px'
     },
-    logoutButton: {
-        backgroundColor: '#ff3b30',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        fontSize: '14px',
-        fontWeight: '600',
-        cursor: 'pointer'
-    },
     profileCircle: {
         width: '40px',
         height: '40px',
@@ -425,7 +409,7 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     muscleGroupsContainer: {
         display: 'flex',
