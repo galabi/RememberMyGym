@@ -1,17 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
-// @route   GET /api/users
-// @desc    Get all users from the database
-router.get('/', async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (err) {
-        res.status(500).json({ message: "Failed to fetch users", error: err.message });
-    }
-});
 
 // @route   GET /api/users/:username
 // @desc    Get a single user by their username
@@ -73,16 +64,66 @@ router.post('/login', async (req, res) => {
                 { email: credential.toLowerCase() },
                 { username: { $regex: '^' + credential + '$', $options: 'i' } }
             ]
-        });
+        }).select('+password'); // Include password for authentication
 
-        if (user && user.password === password) { // In production, use bcrypt to compare!
-            res.json({ message: "Login successful", user: { id: user._id, name: user.full_name } });
-        } else {
-            res.status(401).json({ message: "Invalid email/username or password" });
+        if (!user || !(await user.correctPassword(password, user.password))) {
+                    res.status(401).json({ message: "Invalid email/username or password" });
         }
+        
+        res.json({ message: "Login successful", user: { id: user._id, name: user.full_name } });
+
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
+});
+
+// @route   patch /api/users/update/password
+// @desc    Update user password
+router.patch('/update/password/:id', async (req, res) => {
+    const {oldPassword, newPassword } = req.body;
+    const userId = req.params.id;
+    try {
+        const user = await User.findById(userId).select('+password');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await user.correctPassword(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Old password is incorrect" });
+        }
+
+        user.password = newPassword;
+        await user.save();
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+        
+});
+
+// @route   patch /api/users/update/username
+// @desc    Update user username
+router.patch('/update/username/:id', async (req, res) => {
+    const { newUsername } = req.body;
+
+    try {
+        const existingUser = await User.findOne({ username: newUsername });
+        if (existingUser && existingUser._id.toString() !== req.params.id) {
+            return res.status(400).json({ message: "Username already taken" });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        user.username = newUsername;
+        await user.save();
+        res.status(200).json({ message: "Username updated successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+        
 });
 
 module.exports = router;
