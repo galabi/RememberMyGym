@@ -1,3 +1,4 @@
+import PasswordChange from './PasswordChange';
 
 const globalStyles = `
     input[type="number"]::-webkit-outer-spin-button,
@@ -34,6 +35,7 @@ const Settings = ({ user, onLogout }) => {
             <style>{globalStyles}</style>
             <div style={{padding: '20px'}}>
                 <h2>Settings (soon)</h2>
+                <PasswordChange userId={user?._id || user?.id} />
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <button onClick={onLogout} style={styles.logoutButton}>Logout</button>
                  </div>      

@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({// Allow requests from any origin
     origin: API_BASE_URL,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 })); 
 

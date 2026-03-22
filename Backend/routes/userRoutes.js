@@ -65,9 +65,8 @@ router.post('/login', async (req, res) => {
                 { username: { $regex: '^' + credential + '$', $options: 'i' } }
             ]
         }).select('+password'); // Include password for authentication
-
         if (!user || !(await user.correctPassword(password, user.password))) {
-                    res.status(401).json({ message: "Invalid email/username or password" });
+            return res.status(401).json({ message: "Invalid email/username or password" });
         }
         
         res.json({ message: "Login successful", user: { id: user._id, name: user.full_name } });
@@ -79,9 +78,8 @@ router.post('/login', async (req, res) => {
 
 // @route   patch /api/users/update/password
 // @desc    Update user password
-router.patch('/update/password/:id', async (req, res) => {
-    const {oldPassword, newPassword } = req.body;
-    const userId = req.params.id;
+router.patch('/update/password/', async (req, res) => {
+    const {oldPassword, newPassword, userId } = req.body;
     try {
         const user = await User.findById(userId).select('+password');
         if (!user) {

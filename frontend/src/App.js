@@ -92,6 +92,7 @@ const styles = {
     zIndex: 1000,
     paddingBottom: 'env(safe-area-inset-bottom)'
   },
+
   tabItem: {
     display: 'flex',
     flexDirection: 'column',
