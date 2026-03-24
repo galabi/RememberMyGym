@@ -21,7 +21,7 @@ export default function PasswordChange({ userId }) {
         const { oldPassword, newPassword, confirmPassword } = passwords;
 
         if (!oldPassword || !newPassword || !confirmPassword) {
-            alert('please fill in all password fields');
+            alert('Please fill in all password fields');
             return;
         }
 
@@ -37,7 +37,7 @@ export default function PasswordChange({ userId }) {
         };
         setLoading(true);
         try {
-            const response = await axios.patch(`${API_BASE_URL}/api/users/update/password/`, payload);
+            await axios.patch(`${API_BASE_URL}/api/users/update/password/`, payload);
 
             alert('Password updated successfully!');
             setShowModal(false);
@@ -51,28 +51,123 @@ export default function PasswordChange({ userId }) {
     };
 
     const styles = {
-        actionButton: { backgroundColor: '#f2f2f7', color: '#007aff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', marginBottom: '10px' },
-        modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 },
-        modal: { backgroundColor: '#fff', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', width: '90%', maxWidth: '400px', textAlign: 'right', direction: 'rtl' },
-        modalHeader: { fontSize: '20px', fontWeight: '700', marginBottom: '8px', color: '#1c1c1e' },
-        modalSubHeader: { fontSize: '14px', color: '#8e8e93', marginBottom: '20px' },
-        inputGroup: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' },
-        input: { padding: '14px', borderRadius: '12px', border: '1px solid #e5e5ea', fontSize: '16px', backgroundColor: '#f9f9fb', outline: 'none', textAlign: 'right' },
-        submitBtn: { backgroundColor: loading ? '#8e8e93' : '#007aff', color: 'white', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '16px', fontWeight: '600', cursor: loading ? 'default' : 'pointer', transition: 'background 0.2s' },
-        cancelBtn: { backgroundColor: 'transparent', color: '#ff3b30', border: 'none', padding: '10px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', marginTop: '10px' }
+        actionButton: {
+            backgroundColor: '#ffffff',
+            color: '#1c1c1e',
+            border: '1px solid #e5e5ea',
+            borderRadius: '16px',
+            padding: '16px 20px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            marginBottom: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+        },
+        modalOverlay: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+            zIndex: 2000
+        },
+        modal: {
+            backgroundColor: '#fff',
+            borderRadius: '24px',
+            padding: '24px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+            width: '100%',
+            maxWidth: '380px',
+            textAlign: 'left',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            animation: 'slideUp 0.3s ease-out'
+        },
+        modalHeader: {
+            fontSize: '22px',
+            fontWeight: '700',
+            color: '#1c1c1e',
+            letterSpacing: '-0.5px'
+        },
+        modalSubHeader: {
+            fontSize: '15px',
+            color: '#8e8e93',
+            marginBottom: '16px',
+            lineHeight: '1.4'
+        },
+        inputGroup: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+        },
+        input: {
+            padding: '14px 16px',
+            borderRadius: '12px',
+            border: '1px solid #e5e5ea',
+            fontSize: '16px',
+            backgroundColor: '#f2f2f7', // Matching Dashboard inputs
+            outline: 'none',
+            color: '#1c1c1e',
+            width: '100%',
+            boxSizing: 'border-box'
+        },
+        buttonContainer: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            marginTop: '12px'
+        },
+        submitBtn: {
+            backgroundColor: loading ? '#c7c7cc' : '#007aff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '14px',
+            padding: '16px',
+            fontSize: '16px',
+            fontWeight: '700',
+            cursor: loading ? 'default' : 'pointer',
+            transition: 'all 0.2s ease'
+        },
+        cancelBtn: {
+            backgroundColor: 'transparent',
+            color: '#ff3b30',
+            border: 'none',
+            padding: '12px',
+            fontSize: '15px',
+            fontWeight: '600',
+            cursor: 'pointer'
+        }
     };
 
     return (
-        <>
+        <div style={{ width: '100%', maxWidth: '430px', margin: '0 auto' }}>
             <button style={styles.actionButton} onClick={() => setShowModal(true)}>
-                <span>🔒</span> change password
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '20px' }}>🔒</span>
+                    <span>Security Settings</span>
+                </div>
+                <span style={{ color: '#007aff', fontSize: '14px' }}>Change</span>
             </button>
 
             {showModal && (
                 <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
                     <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                        <div style={styles.modalHeader}>Update Password</div>
-                        <div style={styles.modalSubHeader}>Enter your current password and the new password</div>
+                        <h2 style={styles.modalHeader}>Change Password</h2>
+                        <p style={styles.modalSubHeader}>
+                            Keep your account secure by choosing a strong password.
+                        </p>
 
                         <div style={styles.inputGroup}>
                             <input 
@@ -84,7 +179,7 @@ export default function PasswordChange({ userId }) {
                                 onChange={handleInputChange}
                             />
                             
-                            <div style={{ height: '1px', backgroundColor: '#e5e5ea', margin: '4px 0' }} />
+                            <div style={{ height: '1px', backgroundColor: '#e5e5ea', margin: '8px 0' }} />
 
                             <input 
                                 style={styles.input}
@@ -102,13 +197,15 @@ export default function PasswordChange({ userId }) {
                                 value={passwords.confirmPassword}
                                 onChange={handleInputChange}
                             />
+                        </div>
 
+                        <div style={styles.buttonContainer}>
                             <button 
                                 style={styles.submitBtn} 
                                 onClick={handleUpdatePassword}
                                 disabled={loading}
                             >
-                                {loading ? 'Updating...' : 'Update Password'}
+                                {loading ? 'Updating Security...' : 'Update Password'}
                             </button>
                             
                             <button style={styles.cancelBtn} onClick={() => setShowModal(false)}>
@@ -118,6 +215,6 @@ export default function PasswordChange({ userId }) {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }

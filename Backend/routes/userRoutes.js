@@ -4,7 +4,21 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 
-// @route   GET /api/users/:username
+// @route   GET /api/users/:userid
+// @desc    Get a single user by their MongoDB _id
+router.get('/id/:userid', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ message: "Error finding user", error: err.message });
+    }
+});
+
+// @route   GET /api/users/username/:username
 // @desc    Get a single user by their username
 router.get('/:username', async (req, res) => {
     try {

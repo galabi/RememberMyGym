@@ -79,21 +79,129 @@ export default function ExerciseSelector({ userId, onExercisesUpdated }) {
         }
     };
 
-    const styles = {
-        addButton: { backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '50%', width: '50px', height: '50px', fontSize: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0, 122, 255, 0.3)' },
-        modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 },
-        modal: { backgroundColor: '#fff', borderRadius: '20px', padding: '20px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', width: '100%', maxWidth: '500px' },
-        modalHeader: { fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: '#1c1c1e' },
-        inputGroup: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' },
-        input: { padding: '12px', borderRadius: '8px', border: '1px solid #e5e5ea', fontSize: '16px', backgroundColor: '#f9f9fb', outline: 'none', textAlign: 'left' },
-        submitBtn: { backgroundColor: '#34C759', color: 'white', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '5px' },
-        exerciseList: { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px', borderTop: '1px solid #e5e5ea', paddingTop: '15px', textAlign: 'left' },
-        exerciseItem: { padding: '12px', backgroundColor: '#f9f9fb', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #e5e5ea' },
-        exerciseName: { fontWeight: '600', color: '#1c1c1e', display: 'flex', flexDirection: 'column', textAlign: 'left' },
-        exerciseCategory: { fontSize: '12px', color: '#8e8e93', marginTop: '4px' },
-        removeBtn: { backgroundColor: '#ff3b30', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' },
-        closeButton: { backgroundColor: '#f2f2f7', color: '#333', border: 'none', borderRadius: '8px', padding: '12px 20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '16px', width: '100%' }
-    };
+const styles = {
+    addButton: {
+        backgroundColor: '#007aff',
+        color: 'white',
+        border: 'none',
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        fontSize: '24px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 12px rgba(0, 122, 255, 0.3)'
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2000
+    },
+    modal: {
+        backgroundColor: '#fff',
+        borderRadius: '20px',
+        padding: '20px',
+        maxHeight: 'calc(100svh - 100px)',
+        overflowY: 'auto',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+        width: '90%',
+        marginBottom: '80px',
+        maxWidth: '500px',
+        position: 'relative'
+    },
+    modalHeader: {
+        fontSize: '18px',
+        fontWeight: '700',
+        marginBottom: '20px',
+        color: '#1c1c1e'
+    },
+    inputGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        marginBottom: '20px'
+    },
+    input: {
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #e5e5ea',
+        fontSize: '16px',
+        backgroundColor: '#f9f9fb',
+        outline: 'none',
+        textAlign: 'left'
+    },
+    submitBtn: {
+        backgroundColor: '#34C759',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '12px',
+        fontSize: '16px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        marginTop: '5px'
+    },
+    exerciseList: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        marginTop: '20px',
+        borderTop: '1px solid #e5e5ea',
+        paddingTop: '15px',
+        textAlign: 'left'
+    },
+    exerciseItem: {
+        padding: '12px',
+        backgroundColor: '#f9f9fb',
+        borderRadius: '8px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        border: '1px solid #e5e5ea'
+    },
+    exerciseName: {
+        fontWeight: '600',
+        color: '#1c1c1e',
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'left'
+    },
+    exerciseCategory: {
+        fontSize: '12px',
+        color: '#8e8e93',
+        marginTop: '4px'
+    },
+    removeBtn: {
+        backgroundColor: '#ff3b30',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        padding: '6px 12px',
+        fontSize: '12px',
+        cursor: 'pointer'
+    },
+    closeButton: {
+        backgroundColor: '#f2f2f7',
+        color: '#333',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '12px 20px',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        marginTop: '16px',
+        width: '100%'
+    }
+};
 
     return (
         <>
