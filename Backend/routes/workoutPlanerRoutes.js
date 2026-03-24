@@ -2,6 +2,7 @@ import express from 'express';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const router = express.Router();
 
@@ -10,14 +11,15 @@ const workoutSchema = z.object({
     name: z.string().describe("Name of the exercise."),
     sets: z.number().describe("Number of sets for the exercise."),
     reps: z.number().describe("Number of repetitions for the exercise."),
-    bodyPart: z.string().describe("The body part targeted by the exercise."),
+    bodyPart: z.enum(['Chest', 'Back', 'Arms', 'Legs', 'Glutes', 'Core']).describe("The body part targeted by the exercise.")
 
   })).describe("A list of exercises for the workout plan.")
 });
 const jsonSchema = zodToJsonSchema(workoutSchema);
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
     model: "gemini-3-flash-preview", 
+    systemInstruction: "You are a professional fitness coach. You must always return responses in the exact JSON format specified, without adding new fields or changing property names.",
     generationConfig: {
         responseMimeType: "application/json",
         responseJsonSchema: jsonSchema,
