@@ -2,6 +2,7 @@ import express from 'express';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const workoutSchema = z.object({
   })).describe("A list of exercises for the workout plan.")
 });
 const jsonSchema = zodToJsonSchema(workoutSchema);
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
     model: "gemini-3-flash-preview", 
     generationConfig: {
