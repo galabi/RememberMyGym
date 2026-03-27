@@ -1,30 +1,35 @@
 import express from 'express';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { GoogleGenAI } from "@google/genai";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const router = express.Router();
 
-const workoutSchema = z.object({
-  exercises: z.array(z.object({
-    name: z.string().describe("Name of the exercise."),
-    sets: z.number().describe("Number of sets for the exercise."),
-    reps: z.number().describe("Number of repetitions for the exercise."),
-    bodyPart: z.enum(['Chest', 'Back', 'Arms', 'Legs', 'Glutes', 'Core']).describe("The body part targeted by the exercise.")
+const workoutSchema = {
+    type: "object",
+    properties: {
+        exercises: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    name: { type: "string", description: "Name of the exercise" },
+                    sets: { type: "integer", description: "Number of sets" },
+                    reps: { type: "integer", description: "Number of reps" },
+                    bodyPart: {
+                        type: "string",
+                        enum: ['Chest', 'Back', 'Arms', 'Legs', 'Glutes', 'Core'],
+                        description: "Targeted body part"
+                    }
+                },
+                required: ["name", "sets", "reps", "bodyPart"]
+            }
+        }
+    },
+    required: ["exercises"]
+};
 
-  })).describe("A list of exercises for the workout plan.")
-});
-const jsonSchema = zodToJsonSchema(workoutSchema);
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ 
-    model: "gemini-3-flash-preview", 
-    systemInstruction: "You are a professional fitness coach. You must always return responses in the exact JSON format specified, without adding new fields or changing property names.",
-    generationConfig: {
-        responseMimeType: "application/json",
-        responseJsonSchema: jsonSchema,
-    }
-});
+
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // @route   POST /api/planer/generate
 // @desc    Generate a workout plan based on user preferences
@@ -35,13 +40,24 @@ router.post('/generate', async (req, res) => {
         if (!duration || !targetArea || !environment) {
             return res.status(400).json({ message: "Missing required fields: duration, targetArea, or environment" });
         }
-        const prompt = `Generate a workout plan based on the following user preferences: gender: ${gender}, age: ${age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}. The workout plan should include a list of exercises with the name of the exercise, number of sets, and number of repetitions for each exercise.for each exercise set the body Part name to one of the following: 'Chest', 'Back', 'Arms', 'Legs', 'Glutes', 'Core'`;
+        
+        const prompt = `Generate a workout plan based on the following user preferences: gender: ${gender}, age: ${age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}. 
+                        IMPORTANT RULE: If an exercise is time-based (like Plank), put the time required in the 'name' field and set 'reps' to 1.`;
+        
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash", 
+            contents:prompt,
+            config : {
+                systemInstruction: "You are a professional fitness coach.",
+                responseMimeType: "application/json",
+                responseJsonSchema: workoutSchema,
+                temperature: 0.1,
+            }
+        });
+        
+        const workoutData = JSON.parse(response.text);
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        res.status(200).json(JSON.parse(text));
+        res.status(200).json(workoutData);
     } catch (err) {
         res.status(500).json({ message: "Error generating workout plan", error: err.message });
     }

@@ -165,7 +165,7 @@ const WorkoutPlanner = () => {
                         </div>
                         
                         <div style={styles.exercisesList}>
-                            {Array.isArray(workoutResult) && workoutResult.map((ex, index) => (
+                            {workoutResult && Array.isArray(workoutResult.exercises) && workoutResult.exercises.map((ex, index) => (
                                 <div key={index} style={styles.exerciseItem}>
                                     <div style={styles.exerciseLeft}>
                                         <span style={styles.iconCircle}>
@@ -178,7 +178,8 @@ const WorkoutPlanner = () => {
                                     </div>
                                     <div style={styles.exStats}>
                                         <div style={styles.statLine}><strong>{ex.sets}</strong> sets</div>
-                                        <div style={styles.statLine}><strong>{ex.repetitions}</strong> reps</div>                                    </div>
+                                        <div style={styles.statLine}><strong>{ex.reps}</strong> reps</div>                                    
+                                    </div>
                                 </div>
                             ))}
                         </div>
