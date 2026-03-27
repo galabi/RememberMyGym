@@ -33,8 +33,8 @@ const Settings = ({ user, onLogout }) => {
     return (
         <div style={styles.container}>
             <style>{globalStyles}</style>
-            <div style={{padding: '20px'}}>
-                <h2>Settings (soon)</h2>
+            <div style={{padding: '20px',gap: '20px', display: 'flex', flexDirection: 'column'}}>
+                <h2 style={styles.title}>Settings</h2>
                 <PasswordChange userId={user?._id || user?.id} />
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <button onClick={onLogout} style={styles.logoutButton}>Logout</button>
@@ -45,6 +45,12 @@ const Settings = ({ user, onLogout }) => {
 };
 
 const styles = {
+    title: { 
+        fontSize: '32px', 
+        fontWeight: 'bold', 
+        letterSpacing: '-1px', 
+        margin: 0 
+    },
     logoutButton: {
         backgroundColor: '#ff3b30',
         color: '#fff',

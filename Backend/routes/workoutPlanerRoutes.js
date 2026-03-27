@@ -1,3 +1,4 @@
+import WorkoutPlan from '../models/WorkoutPlan.js';
 import express from 'express';
 import { GoogleGenAI } from "@google/genai";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -63,5 +64,51 @@ router.post('/generate', async (req, res) => {
     }
 });
 
+// @route   POST /api/planer/save
+// @desc    Save a complete workout group (multiple exercises) for a user
+router.post('/save', async (req, res) => {
+    try {
+        const { user_id, exercises } = req.body;
+
+        if (!user_id || !exercises || !Array.isArray(exercises) || exercises.length === 0) {
+            return res.status(400).json({ 
+                message: 'user_id and a non-empty exercises array are required' 
+            });
+        }
+
+
+        const lastExerciseRecord = await WorkoutPlan.findOne({ user_id })
+            .sort({ workout_index: -1 }) 
+            .select('workout_index')
+            .lean();
+
+        const nextIndex = lastExerciseRecord ? lastExerciseRecord.workout_index + 1 : 1;
+
+        const workoutDocuments = exercises.map(ex => ({
+            user_id: user_id,
+            workout_index: nextIndex,
+            body_part: ex.bodyPart,
+            workout_name: `Workout ${nextIndex}`,
+            exercise_name: ex.name,
+            sets: ex.sets,
+            reps: ex.reps
+        }));
+
+        const savedExercises = await WorkoutPlan.insertMany(workoutDocuments);
+
+        res.status(201).json({ 
+            message: 'Workout group saved successfully', 
+            workout_index: nextIndex,
+            total_exercises_saved: savedExercises.length
+        });
+
+    } catch (error) {
+        console.error("Error saving workout group:", error);
+        res.status(500).json({ 
+            message: "Failed to save the workout group", 
+            error: error.message 
+        });
+    }
+});
 
 export default router;

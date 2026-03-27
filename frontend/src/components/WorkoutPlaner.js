@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -8,7 +8,7 @@ const WorkoutPlanner = () => {
     const [targetArea, setTargetArea] = useState('Full Body');
     const [environment, setEnvironment] = useState('Gym');
     const [isGenerating, setIsGenerating] = useState(false);
-
+    const [isSaving, setIsSaving] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [workoutResult, setWorkoutResult] = useState(null);
     
@@ -36,6 +36,40 @@ const WorkoutPlanner = () => {
         setWorkoutResult(null);
         await getWorkoutPlan();
     };
+    
+    const handleSaveWorkout = async () => {
+        if (!workoutResult || !workoutResult.exercises) return;
+
+        setIsSaving(true);
+        try {
+            const userid = getCookie('user_id');
+            
+            await axios.post(`${API_BASE_URL}/api/planer/save`, {
+                user_id: userid,
+                exercises: workoutResult.exercises
+            });
+
+            setShowModal(false); 
+            
+        } catch (error) {
+            console.error('Error saving workout:', error);
+            alert('Failed to save workout. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showModal]);
 
     const getWorkoutPlan = async () => {
         try {
@@ -184,8 +218,14 @@ const WorkoutPlanner = () => {
                             ))}
                         </div>
 
-                        <button style={styles.closeButton} onClick={() => setShowModal(false)}>
-                            Start Workout
+                        <button style={{...styles.closeButton, 
+                            opacity: isSaving ? 0.7 : 1,
+                            cursor: isSaving ? 'default' : 'pointer'
+                            }} 
+                            onClick={handleSaveWorkout}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Saving...' : 'Save Workout'}
                         </button>
                     </div>
                 </div>
@@ -322,7 +362,8 @@ const styles = {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'flex-end', 
-        zIndex: 2000
+        zIndex: 2000,
+        touchAction: 'none'
     },
     modalContent: { 
         backgroundColor: '#fff', 
@@ -330,10 +371,11 @@ const styles = {
         maxWidth: '430px', 
         borderTopLeftRadius: '30px', 
         borderTopRightRadius: '30px', 
-        padding: '30px 20px', 
+        padding: '30px 20px 70px 20px',
         boxSizing: 'border-box', 
         maxHeight: '85vh', 
-        overflowY: 'auto' 
+        overflowY: 'auto',
+        overscrollBehavior: 'contain'
     },
     modalHeader: { 
         display: 'flex', 
@@ -344,6 +386,20 @@ const styles = {
     modalTitle: { 
         fontSize: '24px', 
         fontWeight: 'bold' 
+    },
+    summaryBox: {
+        backgroundColor: '#e8f4ff', 
+        borderRadius: '16px',
+        padding: '18px',
+        marginTop: '10px',
+        border: '1px solid #d0e7ff',
+        },
+    summaryText: {
+        margin: 0,
+        fontSize: '15px',
+        color: '#007aff',
+        textAlign: 'center',
+        lineHeight: '1.4',
     },
     closeIcon: { 
         background: '#f2f2f7', 
@@ -358,6 +414,13 @@ const styles = {
         flexDirection: 'column', 
         gap: '12px', 
         marginBottom: '30px' 
+    },
+    sliderLabels: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginTop: '8px',
+        fontSize: '12px',
+        color: '#c7c7cc',
     },
     exerciseItem: { 
         display: 'flex', 

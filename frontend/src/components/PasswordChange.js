@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -11,6 +11,19 @@ export default function PasswordChange({ userId }) {
         confirmPassword: ''
     });
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showModal]);
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -80,7 +93,8 @@ export default function PasswordChange({ userId }) {
             justifyContent: 'center',
             alignItems: 'center',
             padding: '20px',
-            zIndex: 2000
+            zIndex: 2000,
+            touchAction: 'none'
         },
         modal: {
             backgroundColor: '#fff',
@@ -93,7 +107,10 @@ export default function PasswordChange({ userId }) {
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
-            animation: 'slideUp 0.3s ease-out'
+            animation: 'slideUp 0.3s ease-out',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            overscrollBehavior: 'contain'
         },
         modalHeader: {
             fontSize: '22px',
@@ -156,7 +173,7 @@ export default function PasswordChange({ userId }) {
             <button style={styles.actionButton} onClick={() => setShowModal(true)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '20px' }}>🔒</span>
-                    <span>Security Settings</span>
+                    <span>Change Password</span>
                 </div>
                 <span style={{ color: '#007aff', fontSize: '14px' }}>Change</span>
             </button>
