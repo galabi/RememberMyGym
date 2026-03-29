@@ -5,14 +5,16 @@ import Settings from './components/Settings';
 import Cookies from 'js-cookie';
 import BottomNav from './components/Toolbar';
 import WorkoutPlaner from './components/WorkoutPlaner';
+import SignUp from './components/SignUpMeneger';
 
-function App() {
+const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('isLoggedIn') === 'true');
     const [activeTab, setActiveTab] = useState('dashboard'); // default to dashboard tab
     const [user, setUser] = useState({
         _id: Cookies.get('user_id'),
         full_name: Cookies.get('full_name')
     });
+    const [signUpScreen, setSignUpScreen] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -33,15 +35,28 @@ function App() {
     setActiveTab('dashboard');
   };
 
-  if (!isLoggedIn) {
-      return (
-        <Login onLoginSuccess={(userData) => {
-          setUser(userData);
-          setIsLoggedIn(true);
-          setActiveTab('dashboard');
-          }} 
-        />
-      );
+    if (!isLoggedIn && !signUpScreen) {
+        return (
+            <Login 
+                onLoginSuccess={(userData) => {
+                    setUser(userData);
+                    setIsLoggedIn(true);
+                    setActiveTab('dashboard');
+                }} 
+                onSignUpClick={() => setSignUpScreen(true)} 
+            />
+        );
+    }else if (!isLoggedIn && signUpScreen) {
+        return (
+            <SignUp 
+                onSignUpSuccess={(userData) => {
+                    setUser(userData);
+                    setIsLoggedIn(true);
+                    setActiveTab('dashboard');
+                }} 
+                onLoginClick={() => setSignUpScreen(false)}
+            />
+        );
     }
 
 return (

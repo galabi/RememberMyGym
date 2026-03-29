@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Added onLoginSuccess as a prop to communicate with App.js
-const Login = ({ onLoginSuccess }) => {
+const Login = ({ onLoginSuccess, onSignUpClick }) => {
     const [credential, setCredential] = useState(''); // Can be email or username
     const [password, setPassword] = useState('');
 
@@ -67,6 +67,9 @@ const Login = ({ onLoginSuccess }) => {
                     </button>
                 </form>
 
+                <button style={{...styles.loginButton, backgroundColor: '#34c759', marginTop: '15px'}} onClick={onSignUpClick}>
+                    Create Account
+                </button>
                 <p style={styles.forgotPassword}>Forgot password?</p>
             </div>
         </div>

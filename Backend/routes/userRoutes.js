@@ -114,7 +114,7 @@ router.patch('/update/password/', async (req, res) => {
         
 });
 
-// @route   patch /api/users/update/username
+// @route   patch /api/users/update/username/:id
 // @desc    Update user username
 router.patch('/update/username/:id', async (req, res) => {
     const { newUsername } = req.body;
@@ -132,6 +132,61 @@ router.patch('/update/username/:id', async (req, res) => {
         user.username = newUsername;
         await user.save();
         res.status(200).json({ message: "Username updated successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+        
+});
+
+// @route   post /api/users/register
+// @desc    Register user with email and password
+router.post('/register', async (req, res) => {
+    const { full_name, username, email, password} = req.body;
+
+    try{
+        const existingEmail = await User.findOne({ email });
+        const existingUsername = await User.findOne({ username });
+
+        if (existingUsername) {
+            return res.status(400).json({ message: "User with this username already exists" });
+        }
+        if (existingEmail) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
+
+        const newUser = new User({
+            full_name,
+            username,
+            email,
+            password
+        });
+
+        await newUser.save();
+        res.status(201).json({ 
+            message: "User created successfully", 
+            user: { 
+                id: newUser._id, 
+                name: newUser.full_name 
+            } 
+        });    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+// @route   patch /api/users/complete-registration/:id
+// @desc    Complete user registration with additional details
+router.patch('/complete-registration/:id', async (req, res) => {
+    const { birth_date, gender } = req.body;
+
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        user.birth_date = birth_date;
+        user.gender = gender;
+        await user.save();
+        res.status(200).json({ message: "Registration completed successfully", user });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
