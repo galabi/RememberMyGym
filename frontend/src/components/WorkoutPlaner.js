@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import axios from 'axios';
+import workoutIcons from './WorkoutTypes.js';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const WorkoutPlanner = () => {
@@ -16,15 +17,6 @@ const WorkoutPlanner = () => {
     const bodySegments = ['Upper Body', 'Lower Body', 'Full Body'];
     const locationOptions = ['Home', 'Gym'];
     
-    const muscleIcons = {
-        'Chest': '💪',
-        'Back': '🔙',
-        'Arms': '🦾',
-        'Legs': '🦵',
-        'Glutes': '🍑',
-        'Core': '🫀',
-        'Full Body': '🔥'
-    };
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -203,7 +195,15 @@ const WorkoutPlanner = () => {
                                 <div key={index} style={styles.exerciseItem}>
                                     <div style={styles.exerciseLeft}>
                                         <span style={styles.iconCircle}>
-                                            {muscleIcons[ex.bodyPart] || '⚡'}
+                                            {workoutIcons[ex.bodyPart] ? (
+                                                <img 
+                                                    src={workoutIcons[ex.bodyPart]} 
+                                                    alt="" 
+                                                    style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
+                                                />
+                                            ) : (
+                                                '⚡' // Fallback icon if no specific icon is found for the muscle group
+                                            )}
                                         </span>
                                         <div>
                                             <div style={styles.exName}>{ex.name}</div>

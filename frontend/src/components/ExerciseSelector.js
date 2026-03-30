@@ -1,25 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import workout from './WorkoutTypes.js';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const CATEGORY_ICONS = {
-    'Chest': '💪',
-    'Back': '🔙',
-    'Arms': '🦾',
-    'Legs': '🦵',
-    'Glutes': '🍑',
-    'Core': '🫀'
-};
 
-const PREDEFINED_CATEGORIES = [
-    'Chest', 
-    'Back', 
-    'Arms', 
-    'Legs', 
-    'Glutes', 
-    'Core'
-];
 
 export default function ExerciseSelector({ userId, onExercisesUpdated }) {
     const [userExercises, setUserExercises] = useState([]);
@@ -221,8 +206,13 @@ const styles = {
                                     style={{ ...styles.input, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 >
-                                    <span style={{ color: customCategory ? '#1c1c1e' : '#8e8e93' }}>
-                                        {customCategory ? `${CATEGORY_ICONS[customCategory]} ${customCategory}` : 'Select Category...'}
+                                    <span style={{ color: customCategory ? '#1c1c1e' : '#8e8e93', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            {customCategory ? (
+                                            <>
+                                                <img src={workout[customCategory]} alt="" style={{ width: '24px', height: '24px' }} />
+                                                {customCategory}
+                                            </>
+                                        ) : 'Select Category...'}
                                     </span>
                                     <span style={{ fontSize: '12px', color: '#007aff' }}>{isDropdownOpen ? '▲' : '▼'}</span>
                                 </div>
@@ -234,7 +224,7 @@ const styles = {
                                         marginTop: '4px', zIndex: 3000, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                         maxHeight: '200px', overflowY: 'auto'
                                     }}>
-                                        {PREDEFINED_CATEGORIES.map(category => (
+                                        {Object.keys(workout).map(category => (
                                             <div 
                                                 key={category}
                                                 onClick={() => {
@@ -242,14 +232,21 @@ const styles = {
                                                     setIsDropdownOpen(false);
                                                 }}
                                                 style={{
-                                                    padding: '12px', cursor: 'pointer', fontSize: '16px',
-                                                    borderBottom: '1px solid #f2f2f7', textAlign: 'left',
+                                                    padding: '12px', 
+                                                    cursor: 'pointer', 
+                                                    fontSize: '16px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '12px',
+                                                    borderBottom: '1px solid #f2f2f7', 
+                                                    textAlign: 'left',
                                                     backgroundColor: customCategory === category ? '#f2f2f7' : 'transparent'
                                                 }}
                                                 onMouseOver={(e) => e.target.style.backgroundColor = '#f2f2f7'}
                                                 onMouseOut={(e) => e.target.style.backgroundColor = customCategory === category ? '#f2f2f7' : 'transparent'}
                                             >
-                                                <span>{CATEGORY_ICONS[category]} {category}</span>
+                                                <img src={workout[category]} alt="" style={{ width: '24px', height: '24px' }} />
+                                                <span>{category}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -276,8 +273,11 @@ const styles = {
                                 {userExercises.map(ex => (
                                     <div key={ex.name} style={styles.exerciseItem}>
                                         <div style={styles.exerciseName}>
-                                            <span>{CATEGORY_ICONS[ex.muscleGroup]} {ex.name}</span>
-                                            <span style={styles.exerciseCategory}>{ex.muscleGroup}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <img src={workout[ex.muscleGroup]} alt="" style={{ width: '20px', height: '20px' }} />
+                                                <span>{ex.name}</span>
+                                            </div>
+                                            <span style={styles.exerciseCategory}>{ex.muscleGroup}</span>  
                                         </div>
                                         <button 
                                             onClick={() => handleRemoveExercise(ex.name)}

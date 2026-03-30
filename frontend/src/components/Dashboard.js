@@ -3,6 +3,7 @@ import axios from 'axios';
 import MeasurementTracker from './MeasurementTracker';
 import ExerciseSelector from './ExerciseSelector';
 import GraphModal from './GraphModal';
+import muscleGroupIcons from './WorkoutTypes';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -169,14 +170,6 @@ const Dashboard = ({ user }) => {
     const [latestWorkouts, setLatestWorkouts] = useState([]);
     
 
-    const muscleGroupIcons = {
-        'Chest': '💪',
-        'Back': '🔙',
-        'Arms': '🦾',
-        'Legs': '🦵',
-        'Glutes': '🍑',
-        'Core': '🫀'
-    };
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -289,7 +282,15 @@ const Dashboard = ({ user }) => {
                                     }}
                                 >
                                     <div style={styles.groupTitleContainer}>
-                                        <span style={styles.groupIcon}>{muscleGroupIcons[group] || '📌'}</span>
+                                        <span style={styles.groupIcon}>
+                                            {muscleGroupIcons[group] ? (
+                                                <img 
+                                                    src={muscleGroupIcons[group]} 
+                                                    alt="" 
+                                                    style={{ width: '28px', height: '28px', objectFit: 'contain' }} 
+                                                />
+                                            ) : '📌'}
+                                        </span>
                                         <h2 style={styles.groupTitle}>{group}</h2>
                                     </div>
                                     <span style={{
@@ -310,10 +311,18 @@ const Dashboard = ({ user }) => {
                                                     onClick={() => handleExerciseClick(exercise.name)}
                                                     style={styles.exerciseButton}
                                                 >
-                                                    <span style={styles.exerciseName}>{exercise.name}</span>
-                                                    {lastRecord && (
-                                                        <span style={styles.exerciseWeight}>{lastRecord.weight} kg</span>
-                                                    )}
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                                                            <img 
+                                                                src={muscleGroupIcons[group]} 
+                                                                alt="" 
+                                                                style={{ width: '18px', height: '18px', opacity: 0.8 }} 
+                                                            />
+                                                            <span style={styles.exerciseName}>{exercise.name}</span>
+                                                        </div>
+                                                        
+                                                        {lastRecord && (
+                                                            <span style={styles.exerciseWeight}>{lastRecord.weight} kg</span>
+                                                        )}
                                                     {/* graph button */}
                                                     <span 
                                                         onClick={(e) => {
