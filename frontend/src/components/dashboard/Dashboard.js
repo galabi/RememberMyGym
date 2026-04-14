@@ -3,7 +3,7 @@ import axios from 'axios';
 import MeasurementTracker from './MeasurementTracker';
 import ExerciseSelector from './ExerciseSelector';
 import GraphModal from './GraphModal';
-import muscleGroupIcons from './WorkoutTypes';
+import muscleGroupIcons from '../workout/WorkoutTypes';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 

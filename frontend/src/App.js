@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import Settings from './components/Settings';
+import Login from './components/auth/Login';
+import Dashboard from './components/dashboard/Dashboard';
+import Settings from './components/settings/Settings';
 import Cookies from 'js-cookie';
-import BottomNav from './components/Toolbar';
-import WorkoutPlaner from './components/WorkoutPlaner';
-import SignUp from './components/SignUpMeneger';
+import BottomNav from './components/shared/Toolbar';
+import WorkoutPlaner from './components/workout/WorkoutPlaner';
+import SignUp from './components/auth/SignUpMeneger';
 import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
