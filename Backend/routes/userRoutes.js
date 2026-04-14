@@ -2,8 +2,23 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 
+
+// @route   GET /api/users/profile/:id
+// @desc    Get user profile info
+router.get('/profile/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json({ username: user.username, full_name: user.full_name, email: user.email, birth_date: user.birth_date, gender: user.gender });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
 
 // @route   DELETE /api/users/:id
 // @desc    Delete a user by MongoDB _id
@@ -36,7 +51,8 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: "Invalid email/username or password" });
         }
         
-        res.json({ message: "Login successful", user: { id: user._id, name: user.full_name } });
+        const token = signToken(user._id);
+        res.json({ message: "Login successful", token, user: { id: user._id, name: user.full_name } });
 
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
@@ -114,12 +130,11 @@ router.post('/register', async (req, res) => {
             password
         });
         await newUser.save();
-        res.status(201).json({ 
-            message: "User created successfully", 
-            user: { 
-                id: newUser._id, 
-                name: newUser.full_name 
-            } 
+        const token = signToken(newUser._id);
+        res.status(201).json({
+            message: "User created successfully",
+            token,
+            user: { id: newUser._id, name: newUser.full_name }
         });    } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }

@@ -1,6 +1,26 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import PasswordChange from './PasswordChange';
+import UsernameChange from './UsernameChange';
+import PersonalInfo from './PersonalInfo';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Settings = ({ user, onLogout }) => {
+    const [profile, setProfile] = useState(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/users/profile/${user._id}`);
+                setProfile(res.data);
+            } catch (err) {
+                console.error('Failed to fetch profile:', err);
+            }
+        };
+        if (user?._id) fetchProfile();
+    }, [user._id]);
+
     const initials = user?.full_name
         ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : 'U';
@@ -14,13 +34,24 @@ const Settings = ({ user, onLogout }) => {
                 <div style={styles.avatar}>{initials}</div>
                 <div>
                     <div style={styles.profileName}>{user?.full_name || 'User'}</div>
-                    <div style={styles.profileSub}>Personal Account</div>
+                    <div style={styles.profileSub}>{profile?.email || 'Personal Account'}</div>
                 </div>
             </div>
 
             {/* Account section */}
             <div style={styles.sectionLabel}>ACCOUNT</div>
             <div style={styles.group}>
+                <UsernameChange
+                    userId={user._id}
+                    currentUsername={profile?.username || '…'}
+                    onUpdated={(u) => setProfile(p => ({ ...p, username: u }))}
+                />
+                <PersonalInfo
+                    userId={user._id}
+                    currentBirthDate={profile?.birth_date}
+                    currentGender={profile?.gender}
+                    onUpdated={({ birth_date, gender }) => setProfile(p => ({ ...p, birth_date, gender }))}
+                />
                 <PasswordChange userId={user?._id || user?.id} />
             </div>
 

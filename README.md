@@ -92,17 +92,3 @@ npm start
 | `POST /api/planer/generate` | Generate an AI workout plan |
 | `POST /api/planer/save` | Save a workout plan |
 
-## Testing
-
-```bash
-# Run all tests
-npm test
-
-# Watch mode
-npm run test:watch
-
-# Coverage report
-npm test -- --coverage
-```
-
-See [TESTING.md](TESTING.md) for full documentation on the test suite.

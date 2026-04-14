@@ -23,6 +23,7 @@ const Login = ({ onLoginSuccess, onSignUpClick }) => {
                 Cookies.set('user_id', mappedUser._id, { expires: 7 });
                 Cookies.set('full_name', mappedUser.full_name, { expires: 7 });
                 Cookies.set('isLoggedIn', 'true', { expires: 7 });
+                Cookies.set('auth_token', response.data.token, { expires: 7 });
                 onLoginSuccess(mappedUser);
             }
         } catch (error) {

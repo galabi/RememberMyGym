@@ -9,6 +9,13 @@ import SignUp from './components/SignUpMeneger';
 import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+// Attach JWT token to every request automatically
+axios.interceptors.request.use((config) => {
+    const token = Cookies.get('auth_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+});
+
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('isLoggedIn') === 'true');
     const [activeTab, setActiveTab] = useState('dashboard'); // default to dashboard tab
@@ -51,7 +58,7 @@ const App = () => {
     }
   };
   const handleLogout = () => {
-    ['user_id', 'full_name', 'isLoggedIn'].forEach(c => Cookies.remove(c));
+    ['user_id', 'full_name', 'isLoggedIn', 'auth_token'].forEach(c => Cookies.remove(c));
     setIsLoggedIn(false);
     setUser(null);
     setActiveTab('dashboard');

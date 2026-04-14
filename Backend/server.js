@@ -7,6 +7,7 @@ const measurementRoutes = require('./routes/measurementRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
 const planWorkoutRoutes = require('./routes/workoutPlanerRoutes').default;
 const cors = require('cors');
+const protect = require('./middleware/auth');
 const API_IP = process.env.API_IP || 'localhost';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -32,7 +33,14 @@ app.get('/api/health', (_req, res) => {
   res.status(httpStatus).json({ server: 'up', database: db });
 });
 
-// Use the routes
+// Apply auth to everything except login, register, and health
+const PUBLIC_ROUTES = ['POST /api/users/login', 'POST /api/users/register'];
+app.use((req, res, next) => {
+    if (PUBLIC_ROUTES.includes(`${req.method} ${req.path}`)) return next();
+    return protect(req, res, next);
+});
+
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/measurements', measurementRoutes);

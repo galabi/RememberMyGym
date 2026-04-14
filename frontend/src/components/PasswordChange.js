@@ -155,6 +155,7 @@ const styles = {
         width: '100%',
         background: 'none',
         border: 'none',
+        borderTop: '1px solid #f2f2f7',
         padding: '16px 18px',
         display: 'flex',
         alignItems: 'center',
