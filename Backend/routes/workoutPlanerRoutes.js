@@ -115,4 +115,63 @@ router.post('/save', async (req, res) => {
     }
 });
 
+// @route   DELETE /api/planer/:userId/:workoutIndex
+// @desc    Delete all exercises of a saved workout plan by index
+router.delete('/:userId/:workoutIndex', async (req, res) => {
+    try {
+        const { userId, workoutIndex } = req.params;
+        const result = await WorkoutPlan.deleteMany({ user_id: userId, workout_index: Number(workoutIndex) });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Workout plan not found' });
+        }
+        res.status(200).json({ message: 'Workout plan deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting workout plan:", error);
+        res.status(500).json({ message: "Failed to delete workout plan", error: error.message });
+    }
+});
+
+// @route   GET /api/planer/:userId
+// @desc    Get all saved workout plans for a user, grouped by workout_index
+router.get('/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const exercises = await WorkoutPlan.find({ user_id: userId })
+            .sort({ workout_index: -1, createdAt: 1 })
+            .lean();
+
+        if (!exercises.length) {
+            return res.status(200).json([]);
+        }
+
+        // Group by workout_index
+        const grouped = {};
+        for (const ex of exercises) {
+            const idx = ex.workout_index;
+            if (!grouped[idx]) {
+                grouped[idx] = {
+                    workout_index: idx,
+                    workout_name: ex.workout_name,
+                    createdAt: ex.createdAt,
+                    exercises: []
+                };
+            }
+            grouped[idx].exercises.push({
+                exercise_name: ex.exercise_name,
+                body_part: ex.body_part,
+                sets: ex.sets,
+                reps: ex.reps
+            });
+        }
+
+        const plans = Object.values(grouped).sort((a, b) => b.workout_index - a.workout_index);
+        res.status(200).json(plans);
+
+    } catch (error) {
+        console.error("Error fetching workout plans:", error);
+        res.status(500).json({ message: "Failed to fetch workout plans", error: error.message });
+    }
+});
+
 export default router;

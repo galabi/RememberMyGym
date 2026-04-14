@@ -12,15 +12,54 @@ const WorkoutPlanner = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [workoutResult, setWorkoutResult] = useState(null);
-    
+    const [savedPlans, setSavedPlans] = useState([]);
+    const [loadingPlans, setLoadingPlans] = useState(true);
+    const [plansError, setPlansError] = useState(null);
+    const [expandedPlan, setExpandedPlan] = useState(null);
+
     // Selection options constants
     const bodySegments = ['Upper Body', 'Lower Body', 'Full Body'];
     const locationOptions = ['Home', 'Gym'];
-    
+
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+    const fetchSavedPlans = async () => {
+        const userId = getCookie('user_id');
+        if (!userId) {
+            setLoadingPlans(false);
+            return;
+        }
+        try {
+            setPlansError(null);
+            const res = await axios.get(`${API_BASE_URL}/api/planer/${userId}`);
+            setSavedPlans(res.data);
+        } catch (error) {
+            console.error('Error fetching saved plans:', error);
+            setPlansError('Could not load plans. Please try again.');
+        } finally {
+            setLoadingPlans(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchSavedPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleDeletePlan = async (workoutIndex) => {
+        const userId = getCookie('user_id');
+        try {
+            await axios.delete(`${API_BASE_URL}/api/planer/${userId}/${workoutIndex}`);
+            setSavedPlans(prev => prev.filter(p => p.workout_index !== workoutIndex));
+            if (expandedPlan === workoutIndex) setExpandedPlan(null);
+        } catch (error) {
+            console.error('Error deleting plan:', error);
+            alert('Failed to delete plan. Please try again.');
+        }
     };
 
     const handleGenerate = async () => {
@@ -35,14 +74,21 @@ const WorkoutPlanner = () => {
         setIsSaving(true);
         try {
             const userid = getCookie('user_id');
-            
-            await axios.post(`${API_BASE_URL}/api/planer/save`, {
-                user_id: userid,
-                exercises: workoutResult.exercises
-            });
 
-            setShowModal(false); 
-            
+            await Promise.all([
+                axios.post(`${API_BASE_URL}/api/planer/save`, {
+                    user_id: userid,
+                    exercises: workoutResult.exercises
+                }),
+                axios.post(`${API_BASE_URL}/api/exercises/addPlan`, {
+                    user_id: userid,
+                    exercises: workoutResult.exercises
+                })
+            ]);
+
+            setShowModal(false);
+            fetchSavedPlans();
+
         } catch (error) {
             console.error('Error saving workout:', error);
             alert('Failed to save workout. Please try again.');
@@ -159,12 +205,12 @@ const WorkoutPlanner = () => {
                         Ready for a <strong>{duration} min</strong> session focusing on <strong>{targetArea}</strong> at the <strong>{environment}</strong>.
                     </p>
                 </div>
-                <button 
+                <button
                     style={{
                         ...styles.generateButton,
                         opacity: isGenerating ? 0.7 : 1,
                         transform: isGenerating ? 'scale(0.98)' : 'scale(1)'
-                    }} 
+                    }}
                     onClick={handleGenerate}
                     disabled={isGenerating}
                 >
@@ -175,6 +221,74 @@ const WorkoutPlanner = () => {
                         </div>
                     ) : 'Generate Workout'}
                 </button>
+            </div>
+
+            {/* Saved Plans Section */}
+            <div style={styles.savedSection}>
+                <h2 style={styles.savedTitle}>My Plans</h2>
+
+                {loadingPlans ? (
+                    <p style={styles.emptyText}>Loading plans...</p>
+                ) : plansError ? (
+                    <p style={{...styles.emptyText, color: '#ff3b30'}}>{plansError}</p>
+                ) : savedPlans.length === 0 ? (
+                    <p style={styles.emptyText}>No saved plans yet. Generate and save one above!</p>
+                ) : (
+                    savedPlans.map((plan) => {
+                        const isExpanded = expandedPlan === plan.workout_index;
+                        const uniqueParts = [...new Set(plan.exercises.map(e => e.body_part))];
+                        const date = new Date(plan.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                        return (
+                            <div key={plan.workout_index} style={styles.planCard}>
+                                <button
+                                    style={styles.planHeader}
+                                    onClick={() => setExpandedPlan(isExpanded ? null : plan.workout_index)}
+                                >
+                                    <div style={styles.planHeaderLeft}>
+                                        <span style={styles.planName}>{plan.workout_name}</span>
+                                        <span style={styles.planDate}>{date}</span>
+                                        <div style={styles.partTags}>
+                                            {uniqueParts.map(p => (
+                                                <span key={p} style={styles.partTag}>{p}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={styles.chevron}>{isExpanded ? '▲' : '▼'}</span>
+                                        <button
+                                            style={styles.deleteBtn}
+                                            onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.workout_index); }}
+                                        >✕</button>
+                                    </div>
+                                </button>
+
+                                {isExpanded && (
+                                    <div style={styles.planExercises}>
+                                        {plan.exercises.map((ex, i) => (
+                                            <div key={i} style={styles.planExerciseRow}>
+                                                <div style={styles.planExerciseLeft}>
+                                                    <span style={styles.planIconCircle}>
+                                                        {workoutIcons[ex.body_part] ? (
+                                                            <img src={workoutIcons[ex.body_part]} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+                                                        ) : '⚡'}
+                                                    </span>
+                                                    <div>
+                                                        <div style={styles.planExName}>{ex.exercise_name}</div>
+                                                        <div style={styles.planExPart}>{ex.body_part}</div>
+                                                    </div>
+                                                </div>
+                                                <div style={styles.planExStats}>
+                                                    <span>{ex.sets}×{ex.reps}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })
+                )}
             </div>
 
             {showModal && (
@@ -459,17 +573,138 @@ const styles = {
         fontSize: '13px', 
         color: '#3a3a3c' 
     },
-    closeButton: { 
-        backgroundColor: '#007aff', 
-        color: '#fff', 
-        border: 'none', 
-        borderRadius: '16px', 
-        padding: '18px', 
-        width: '100%', 
-        fontSize: '17px', 
-        fontWeight: '700', 
-        cursor: 'pointer' 
-    }
+    closeButton: {
+        backgroundColor: '#007aff',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '16px',
+        padding: '18px',
+        width: '100%',
+        fontSize: '17px',
+        fontWeight: '700',
+        cursor: 'pointer'
+    },
+    savedSection: {
+        marginTop: '32px',
+        paddingBottom: '20px',
+    },
+    savedTitle: {
+        fontSize: '22px',
+        fontWeight: 'bold',
+        letterSpacing: '-0.5px',
+        marginBottom: '14px',
+    },
+    emptyText: {
+        color: '#8e8e93',
+        fontSize: '15px',
+        textAlign: 'center',
+        padding: '20px 0',
+    },
+    planCard: {
+        backgroundColor: '#fff',
+        borderRadius: '18px',
+        marginBottom: '12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+        overflow: 'hidden',
+    },
+    planHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        padding: '16px',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        textAlign: 'left',
+        boxSizing: 'border-box',
+    },
+    planHeaderLeft: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+    },
+    planName: {
+        fontSize: '16px',
+        fontWeight: '700',
+        color: '#1c1c1e',
+    },
+    planDate: {
+        fontSize: '12px',
+        color: '#8e8e93',
+    },
+    partTags: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '5px',
+        marginTop: '4px',
+    },
+    partTag: {
+        backgroundColor: '#e8f4ff',
+        color: '#007aff',
+        fontSize: '11px',
+        fontWeight: '600',
+        padding: '2px 8px',
+        borderRadius: '20px',
+    },
+    chevron: {
+        fontSize: '12px',
+        color: '#8e8e93',
+    },
+    deleteBtn: {
+        background: 'none',
+        border: 'none',
+        color: '#ff3b30',
+        fontSize: '16px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        padding: '4px 6px',
+        lineHeight: 1,
+    },
+    planExercises: {
+        borderTop: '1px solid #f2f2f7',
+        padding: '8px 16px 16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+    },
+    planExerciseRow: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: '8px',
+    },
+    planExerciseLeft: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+    },
+    planIconCircle: {
+        width: '36px',
+        height: '36px',
+        backgroundColor: '#f2f2f7',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '16px',
+        flexShrink: 0,
+    },
+    planExName: {
+        fontSize: '14px',
+        fontWeight: '600',
+        color: '#1c1c1e',
+    },
+    planExPart: {
+        fontSize: '11px',
+        color: '#8e8e93',
+        fontWeight: '600',
+    },
+    planExStats: {
+        fontSize: '14px',
+        fontWeight: '700',
+        color: '#007aff',
+    },
 };
 
 
