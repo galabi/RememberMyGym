@@ -66,14 +66,9 @@ const WorkoutPlanner = () => {
     const getWorkoutPlan = async () => {
         try {
             const userid = getCookie('user_id');
-            const user = await axios.get(`${API_BASE_URL}/api/users/id/${userid}`, );
-            const birth_date = user.data.birth_date;
-            const gender = user.data.gender;
-            const age = Math.floor((new Date() - new Date(birth_date)) / (365.25 * 24 * 60 * 60 * 1000));
 
             const response = await axios.post(`${API_BASE_URL}/api/planer/generate`, {
-                age,
-                gender,
+                userid,
                 duration,
                 targetArea,
                 environment

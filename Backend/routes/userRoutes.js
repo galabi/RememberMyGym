@@ -4,53 +4,6 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 
-// @route   GET /api/users/:userid
-// @desc    Get a single user by their MongoDB _id
-router.get('/id/:userid', async (req, res) => {
-    try {
-        const user = await User.findById(req.params.userid);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        res.status(200).json(user);
-    } catch (err) {
-        res.status(500).json({ message: "Error finding user", error: err.message });
-    }
-});
-
-// @route   GET /api/users/username/:username
-// @desc    Get a single user by their username
-router.get('/:username', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        res.status(200).json(user);
-    } catch (err) {
-        res.status(500).json({ message: "Error finding user", error: err.message });
-    }
-});
-
-// @route   POST /api/users
-// @desc    Create a new user with email
-router.post('/', async (req, res) => {
-    const user = new User({
-        full_name: req.body.full_name,
-        email: req.body.email, // Added email field
-        birth_date: req.body.birth_date,
-        username: req.body.username,
-        password: req.body.password,
-        gender: req.body.gender
-    });
-
-    try {
-        const newUser = await user.save();
-        res.status(201).json(newUser);
-    } catch (err) {
-        res.status(400).json({ message: "Error creating user", error: err.message });
-    }
-});
 
 // @route   DELETE /api/users/:id
 // @desc    Delete a user by MongoDB _id
@@ -160,7 +113,6 @@ router.post('/register', async (req, res) => {
             email,
             password
         });
-
         await newUser.save();
         res.status(201).json({ 
             message: "User created successfully", 

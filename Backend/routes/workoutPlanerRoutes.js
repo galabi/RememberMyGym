@@ -1,6 +1,7 @@
 import WorkoutPlan from '../models/WorkoutPlan.js';
 import express from 'express';
 import { GoogleGenAI } from "@google/genai";
+import User from '../models/User.js';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const router = express.Router();
@@ -36,13 +37,16 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 // @desc    Generate a workout plan based on user preferences
 router.post('/generate', async (req, res) => {
     try {
-        const {gender, age, duration, targetArea, environment} = req.body;
-
+        const {userid ,duration, targetArea, environment} = req.body;
+        const user = await User.findById(userid);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
         if (!duration || !targetArea || !environment) {
             return res.status(400).json({ message: "Missing required fields: duration, targetArea, or environment" });
         }
-        
-        const prompt = `Generate a workout plan based on the following user preferences: gender: ${gender}, age: ${age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}. 
+
+        const prompt = `Generate a workout plan based on the following user preferences: gender: ${user.gender}, age: ${user.age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}. 
                         IMPORTANT RULE: If an exercise is time-based (like Plank), put the time required in the 'name' field and set 'reps' to 1.`;
         
         const response = await ai.models.generateContent({
