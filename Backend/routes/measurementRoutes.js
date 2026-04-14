@@ -40,6 +40,9 @@ router.post('/log', async (req, res) => {
         height = height || (lastRecord ? lastRecord.height : null);
         bodyFatPercentage = bodyFatPercentage || (lastRecord ? lastRecord.bodyFatPercentage : null);
 
+        if (weight === null || weight === undefined) {
+            return res.status(400).json({ message: 'weight is required' });
+        }
         if (weight < 0 || isNaN(weight)) {
             return res.status(400).json({ message: 'Invalid weight value' });
         }

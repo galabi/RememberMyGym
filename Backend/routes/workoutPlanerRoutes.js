@@ -1,7 +1,7 @@
-import WorkoutPlan from '../models/WorkoutPlan.js';
-import express from 'express';
-import { GoogleGenAI } from "@google/genai";
-import User from '../models/User.js';
+const WorkoutPlan = require('../models/WorkoutPlan');
+const express = require('express');
+const { GoogleGenAI } = require("@google/genai");
+const User = require('../models/User');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const router = express.Router();
@@ -174,4 +174,4 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;
