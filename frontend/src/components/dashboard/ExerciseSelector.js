@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import workout from './WorkoutTypes.js';
+import workout from '../workout/WorkoutTypes.js';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
