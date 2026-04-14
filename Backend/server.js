@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const connectDB = require('./DataBase'); 
+const { connectDB, getDbStatus } = require('./DataBase');
 const userRoutes = require('./routes/userRoutes');
 const workoutRoutes = require('./routes/workoutRoutes');
 const measurementRoutes = require('./routes/measurementRoutes');
@@ -24,6 +24,13 @@ app.use(cors({// Allow requests from any origin
 
 connectDB();
 app.use(express.json());
+
+// Health check endpoint
+app.get('/api/health', (_req, res) => {
+  const db = getDbStatus();
+  const httpStatus = db === 'connected' ? 200 : 503;
+  res.status(httpStatus).json({ server: 'up', database: db });
+});
 
 // Use the routes
 app.use('/api/users', userRoutes);

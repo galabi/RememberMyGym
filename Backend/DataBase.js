@@ -1,14 +1,35 @@
 const mongoose = require('mongoose');
 
+let dbStatus = 'disconnected';
+
 const connectDB = async () => {
   try {
-    // Attempt to connect using the URI from .env
     const conn = await mongoose.connect(process.env.MONGO_URI);
+    dbStatus = 'connected';
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    mongoose.connection.on('disconnected', () => {
+      dbStatus = 'disconnected';
+      console.warn('MongoDB disconnected');
+    });
+
+    mongoose.connection.on('error', (err) => {
+      dbStatus = 'error';
+      console.error('MongoDB error:', err.message);
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      dbStatus = 'connected';
+      console.log('MongoDB reconnected');
+    });
+
   } catch (error) {
+    dbStatus = 'error';
     console.error(`Error: ${error.message}`);
-    process.exit(1); // Stop the server if connection fails
+    process.exit(1);
   }
 };
 
-module.exports = connectDB; // Export the function
+const getDbStatus = () => dbStatus;
+
+module.exports = { connectDB, getDbStatus };

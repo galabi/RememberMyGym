@@ -31,7 +31,13 @@ const Login = ({ onLoginSuccess, onSignUpClick }) => {
         }
     } catch (error) {
         console.error("Login Error:", error);
-        alert('Login failed. Please check your credentials.');
+        if (!error.response) {
+            alert('Cannot reach the server. Please check your internet connection.');
+        } else if (error.response.status === 401) {
+            alert('Invalid email/username or password.');
+        } else {
+            alert('Login failed. Please try again later.');
+        }
     }
 };
 
