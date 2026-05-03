@@ -38,7 +38,7 @@ const StyledWrapper = styled.div`
     max-width: 400px;
     height: 55px;
     position: fixed;
-    bottom: 20px;
+    bottom: env(safe-area-inset-bottom);
     left: 50%;
     transform: translateX(-50%);
     align-items: center;

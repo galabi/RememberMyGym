@@ -13,7 +13,7 @@ const GraphModal = ({ isOpen, exercise, allWorkouts, onClose }) => {
     const data = exerciseHistory.map((record, index) => ({
         index: index + 1,
         weight: record.weight,
-        date: new Date(record.createdAt).toLocaleDateString('he-IL'),
+        date: new Date(record.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }),
     }));
 
     return (
@@ -48,7 +48,7 @@ const GraphModal = ({ isOpen, exercise, allWorkouts, onClose }) => {
                         <h3 style={modalStyles.historyTitle}>Recent Logs</h3>
                         {[...exerciseHistory].reverse().map((record, i) => (
                             <div key={i} style={modalStyles.historyRow}>
-                                <span style={{color: '#8e8e93'}}>{new Date(record.createdAt).toLocaleDateString('he-IL')}</span>
+                                <span style={{color: '#8e8e93'}}>{new Date(record.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                 <span style={{fontWeight: '700'}}>{record.weight} kg</span>
                                 <span>{record.sets}x{record.reps}</span>
                             </div>

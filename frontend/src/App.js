@@ -132,13 +132,13 @@ const styles = {
     flexDirection: 'column',
     height: '100dvh',
     width: '100vw',
-    overflow: 'hidden'
+    paddingBottom: 'env(safe-area-inset-bottom)',
+    boxSizing: 'border-box',
   },
   mainContent: {
     flex: 1,
     overflowY: 'auto',
-    WebkitOverflowScrolling: 'touch',
-    paddingBottom: '100px'
+    paddingBottom: '100px',
   },
   bannerRed: {
     ...bannerBase,

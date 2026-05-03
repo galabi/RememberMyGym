@@ -55,7 +55,7 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
         setErrorMsg('');
 
         // Basic validation before sending to server
-        if (!formData.weight || isNaN(formData.weight)) {
+        if (!formData.weight || isNaN(formData.weight) || Number(formData.weight) <= 0) {
             setErrorMsg('Please enter a valid weight');
             return;
         }

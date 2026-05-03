@@ -46,9 +46,12 @@ router.post('/generate', async (req, res) => {
             return res.status(400).json({ message: "Missing required fields: duration, targetArea, or environment" });
         }
 
-        const prompt = `Generate a workout plan based on the following user preferences: gender: ${user.gender}, age: ${user.age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}. 
+        const birthYear = user.birth_date ? new Date(user.birth_date).getFullYear() : null;
+        const age = birthYear ? new Date().getFullYear() - birthYear : 'unknown';
+
+        const prompt = `Generate a workout plan based on the following user preferences: gender: ${user.gender}, age: ${age}, duration: ${duration} minutes, target area: ${targetArea}, environment: ${environment}.
                         IMPORTANT RULE: If an exercise is time-based (like Plank), put the time required in the 'name' field and set 'reps' to 1.`;
-        
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash", 
             contents:prompt,
@@ -60,6 +63,9 @@ router.post('/generate', async (req, res) => {
             }
         });
         
+        if (!response.text) {
+            return res.status(502).json({ message: "AI service returned an empty response" });
+        }
         const workoutData = JSON.parse(response.text);
 
         res.status(200).json(workoutData);

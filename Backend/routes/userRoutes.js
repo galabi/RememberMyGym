@@ -41,10 +41,11 @@ router.post('/login', async (req, res) => {
 
     try {
         // Try to find user by email first, then by username (case-insensitive for username)
+        const escaped = credential.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const user = await User.findOne({
             $or: [
                 { email: credential.toLowerCase() },
-                { username: { $regex: '^' + credential + '$', $options: 'i' } }
+                { username: { $regex: '^' + escaped + '$', $options: 'i' } }
             ]
         }).select('+password'); // Include password for authentication
         if (!user || !(await user.correctPassword(password, user.password))) {
