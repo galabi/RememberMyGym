@@ -113,6 +113,7 @@ router.post('/save', async (req, res) => {
 
     } catch (error) {
         console.error("Error saving workout group:", error);
+        
         res.status(500).json({ 
             message: "Failed to save the workout group", 
             error: error.message 

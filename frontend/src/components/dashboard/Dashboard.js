@@ -3,6 +3,7 @@ import axios from 'axios';
 import MeasurementTracker from './MeasurementTracker';
 import ExerciseSelector from './ExerciseSelector';
 import GraphModal from './GraphModal';
+import DashboardExercisePicker from './DashboardExercisePicker';
 import muscleGroupIcons from '../workout/WorkoutTypes';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -159,11 +160,12 @@ const ExerciseModal = ({ isOpen, exercise, lastRecord, onClose, onSave }) => {
     );
 };
 
-const Dashboard = ({ user }) => {
+const Dashboard = ({ user, startLiveSession }) => {
     const [workouts, setWorkouts] = useState([]);
     const [selectedExercise, setSelectedExercise] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [expandedGroup, setExpandedGroup] = useState(null);
     const [userExercises, setUserExercises] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -255,7 +257,11 @@ const Dashboard = ({ user }) => {
             </header>
 
             <MeasurementTracker />
-            
+
+            <button style={styles.liveSessionBtn} onClick={() => setIsPickerOpen(true)}>
+                ▶ Start Workout
+            </button>
+
             <div style={{...styles.muscleGroupsContainer, position: 'relative', paddingBottom: '60px'}}>
                 {isLoading ? (
                     <div style={{textAlign: 'center', padding: '40px', color: '#8e8e93'}}>
@@ -365,12 +371,23 @@ const Dashboard = ({ user }) => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveRecord}
             />
-            <GraphModal 
+            <GraphModal
                 isOpen={isHistoryOpen}
                 exercise={selectedExercise}
                 allWorkouts={workouts}
                 onClose={() => setIsHistoryOpen(false)}
             />
+            {isPickerOpen && (
+                <DashboardExercisePicker
+                    userExercises={userExercises}
+                    lastRecords={latestWorkouts}
+                    onStart={(exercises) => {
+                        setIsPickerOpen(false);
+                        startLiveSession({ source: 'freeform', sessionName: 'Free Workout', exercises });
+                    }}
+                    onClose={() => setIsPickerOpen(false)}
+                />
+            )}
         </div>
     );
 };
@@ -408,6 +425,19 @@ const styles = {
         color: '#8e8e93',
         fontSize: '17px',
         marginTop: '2px'
+    },
+    liveSessionBtn: {
+        backgroundColor: '#34c759',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '16px',
+        padding: '16px',
+        fontSize: '17px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        width: '100%',
+        marginBottom: '20px',
+        marginTop: '4px',
     },
     profileCircle: {
         width: '40px',

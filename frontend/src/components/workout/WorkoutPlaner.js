@@ -3,7 +3,7 @@ import axios from 'axios';
 import workoutIcons from './WorkoutTypes.js';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const WorkoutPlanner = () => {
+const WorkoutPlanner = ({ startLiveSession }) => {
     // State for the three selection parameters
     const [duration, setDuration] = useState(45);
     const [targetArea, setTargetArea] = useState('Full Body');
@@ -49,6 +49,17 @@ const WorkoutPlanner = () => {
         fetchSavedPlans();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const handleStartWorkout = (plan) => {
+        const exercises = plan.exercises.map(ex => ({
+            exercise_name: ex.exercise_name,
+            body_part: ex.body_part,
+            totalSets: ex.sets,
+            targetReps: ex.reps,
+            completedSets: []
+        }));
+        startLiveSession({ source: 'plan', sessionName: plan.workout_name, exercises });
+    };
 
     const handleDeletePlan = async (workoutIndex) => {
         const userId = getCookie('user_id');
@@ -255,6 +266,10 @@ const WorkoutPlanner = () => {
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <button
+                                            style={styles.startWorkoutBtn}
+                                            onClick={(e) => { e.stopPropagation(); handleStartWorkout(plan); }}
+                                        >▶ Start</button>
                                         <span style={styles.chevron}>{isExpanded ? '▲' : '▼'}</span>
                                         <button
                                             style={styles.deleteBtn}
@@ -650,6 +665,16 @@ const styles = {
     chevron: {
         fontSize: '12px',
         color: '#8e8e93',
+    },
+    startWorkoutBtn: {
+        backgroundColor: '#34c759',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '10px',
+        padding: '6px 12px',
+        fontSize: '13px',
+        fontWeight: '700',
+        cursor: 'pointer',
     },
     deleteBtn: {
         background: 'none',

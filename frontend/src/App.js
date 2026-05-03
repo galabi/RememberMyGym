@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import Settings from './components/settings/Settings';
 import Cookies from 'js-cookie';
 import BottomNav from './components/shared/Toolbar';
 import WorkoutPlaner from './components/workout/WorkoutPlaner';
+import LiveWorkoutSession from './components/workout/LiveWorkoutSession';
 import SignUp from './components/auth/SignUpMeneger';
 import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -25,6 +26,10 @@ const App = () => {
     });
     const [signUpScreen, setSignUpScreen] = useState(false);
     const [serverError, setServerError] = useState(null); // null | 'server_down' | 'db_error'
+    const [liveSession, setLiveSession] = useState(null);
+
+    const startLiveSession = useCallback((payload) => setLiveSession(payload), []);
+    const endLiveSession = useCallback(() => setLiveSession(null), []);
 
     useEffect(() => {
         const checkHealth = async () => {
@@ -48,9 +53,9 @@ const App = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard user={user} />;
+        return <Dashboard user={user} startLiveSession={startLiveSession} />;
       case 'workout':
-        return <WorkoutPlaner />;
+        return <WorkoutPlaner startLiveSession={startLiveSession} />;
       case 'settings':
         return (<Settings user={user} onLogout={handleLogout}/>);
       default:
@@ -111,6 +116,14 @@ return (
 
       {/* bottom navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {liveSession && (
+        <LiveWorkoutSession
+          session={liveSession}
+          user={user}
+          onEnd={endLiveSession}
+        />
+      )}
     </div>
   );
 }
