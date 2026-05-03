@@ -59,7 +59,6 @@ router.post('/generate', async (req, res) => {
                 systemInstruction: "You are a professional fitness coach.",
                 responseMimeType: "application/json",
                 responseJsonSchema: workoutSchema,
-                temperature: 0.1,
             }
         });
         
